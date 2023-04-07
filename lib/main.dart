@@ -16,9 +16,7 @@ Future<void> main() async {
       create: (_) => UserProvider(),
       child: MultiProvider(
         providers: [
-
           ChangeNotifierProvider(create: (_) => TitleProvider()),
-
         ],
         child: const MaterialApp(
           home: LoginScreen(),
