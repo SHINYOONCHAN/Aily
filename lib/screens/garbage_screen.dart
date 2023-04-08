@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:mysql1/mysql1.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
+import 'dart:convert' as convert;
+import 'package:http/http.dart' as http;
 
 class GarbageScreen extends StatefulWidget {
   final String title;
@@ -19,30 +20,26 @@ class _GarbageScreenState extends State<GarbageScreen> {
       _canHeightPercent = 1.0,
       _plasticHeightPercent = 1.0;
 
-  late MySqlConnection conn;
-  //late String? title;
   Color myColor = const Color(0xFFF8B195);
+  var responseBody;
+  Timer? _timer;
 
   Future<void> fetchGarbage() async {
-    final results = await conn.query('SELECT * FROM garbage');
-
-    final data = <Map<String, dynamic>>[];
-    for (var result in results) {
-      data.add({
-        'normal': result[0],
-        'can': result[1],
-        'plastic': result[2],
-      });
-    }
-
+    try {
+      var response = await http.get(
+          Uri.parse("https://bit.ly/3KGf7ez"));
+      if (response.statusCode == 200) {
+        responseBody = convert.jsonDecode(response.body);
+      }
+    } catch (e) {}
     setState(() {
-      _normalAmount = data[0]['normal'];
+      _normalAmount = responseBody['normal'];
       _normalHeightPercent = HeightPercentage(_normalAmount);
 
-      _canAmount = data[0]['can'];
+      _canAmount = responseBody['can'];
       _canHeightPercent = HeightPercentage(_canAmount);
 
-      _plasticAmount = data[0]['plastic'];
+      _plasticAmount = responseBody['plastic'];
       _plasticHeightPercent = HeightPercentage(_plasticAmount);
     });
   }
@@ -54,31 +51,14 @@ class _GarbageScreenState extends State<GarbageScreen> {
   @override
   void initState() {
     super.initState();
-    MySqlConnection.connect(
-      ConnectionSettings(
-        host: '211.201.93.173',
-        //'175.113.68.69',
-        port: 3306,
-        user: 'root',
-        password: '488799',
-        db: 'database',
-      ),
-    ).then((connection) {
-      conn = connection;
-      Timer.periodic(const Duration(seconds: 3), (timer) => fetchGarbage());
-    });
+    fetchGarbage();
+    _timer = Timer.periodic(const Duration(seconds: 3), (timer) => fetchGarbage());
   }
 
   @override
   void dispose() {
-    conn.close();
     super.dispose();
-  }
-
-  void _gettitle() {
-    // final UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
-    // title = userProvider.user.username;
-    //setState((){});
+    _timer?.cancel();
   }
 
   @override
