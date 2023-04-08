@@ -28,7 +28,6 @@ class _GarbageScreenState extends State<GarbageScreen> {
     try {
       var response = await http.get(
           Uri.parse("https://bit.ly/3KGf7ez"));
-
       if (response.statusCode == 200) {
         responseBody = convert.jsonDecode(response.body);
       }
