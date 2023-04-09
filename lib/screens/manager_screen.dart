@@ -1,4 +1,8 @@
+import 'package:Aily/screens/home_screen.dart';
+import 'package:Aily/screens/map_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:Aily/utils/ShowDialog.dart';
+import 'package:gradients/gradients.dart';
 
 class ManagerScreen extends StatefulWidget {
   const ManagerScreen({Key? key}) : super(key: key);
@@ -20,9 +24,6 @@ class _ManagerScreenState extends State<ManagerScreen> {
   }
 
   Widget ManagerWidget(BuildContext context) {
-    var screenWidth = MediaQuery.of(context).size.width * 0.423;
-    var screenHeight = MediaQuery.of(context).size.height * 0.217;
-
     return Center(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
@@ -39,84 +40,54 @@ class _ManagerScreenState extends State<ManagerScreen> {
             const SizedBox(height: 45),
             Row(
               children: [
-                Container(
-                  width: screenWidth,
-                  height: screenHeight,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Center(
-                    child: Text('화면1', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-                  ),
+                buildNavigationContainer(
+                  context,
+                  '위치',
+                  Icons.location_on,
+                  const MapScreen(),
                 ),
                 const Padding(padding: EdgeInsets.symmetric(horizontal: 10.0)),
-                Container(
-                  width: screenWidth,
-                  height: screenHeight,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Center(
-                    child: Text('화면2', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-                  ),
+                buildNavigationContainer(
+                  context,
+                  '화면2',
+                  Icons.settings,
+                  const HomeScreen(),
                 ),
               ],
             ),
             const SizedBox(height: 20),
             Row(
               children: [
-                Container(
-                  width: screenWidth,
-                  height: screenHeight,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Center(
-                    child: Text('화면3', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-                  ),
+                buildNavigationContainer(
+                  context,
+                  '화면3',
+                  Icons.settings,
+                  const MapScreen(),
                 ),
                 const Padding(padding: EdgeInsets.symmetric(horizontal: 10.0)),
-                Container(
-                  width: screenWidth,
-                  height: screenHeight,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Center(
-                    child: Text('화면4', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-                  ),
+                buildNavigationContainer(
+                  context,
+                  '화면4',
+                  Icons.settings,
+                  const MapScreen(),
                 ),
               ],
             ),
             const SizedBox(height: 20),
             Row(
               children: [
-                Container(
-                  width: screenWidth,
-                  height: screenHeight,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Center(
-                    child: Text('화면5', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-                  ),
+                buildNavigationContainer(
+                  context,
+                  '화면5',
+                  Icons.settings,
+                  const MapScreen(),
                 ),
                 const Padding(padding: EdgeInsets.symmetric(horizontal: 10.0)),
-                Container(
-                  width: screenWidth,
-                  height: screenHeight,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Center(
-                    child: Text('화면6', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-                  ),
+                buildNavigationContainer(
+                  context,
+                  '화면6',
+                  Icons.settings,
+                  const MapScreen(),
                 ),
               ],
             ),
@@ -126,3 +97,50 @@ class _ManagerScreenState extends State<ManagerScreen> {
     );
   }
 }
+
+Widget buildNavigationContainer(
+    BuildContext context,
+    String title,
+    IconData icon,
+    Widget page
+    ) {
+  var screenWidth = MediaQuery.of(context).size.width * 0.423;
+  var screenHeight = MediaQuery.of(context).size.height * 0.217;
+  Color containerColor = const Color(0xFF87A7dD);
+
+  return GestureDetector(
+    onTap: () {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => page));
+    },
+    child: Container(
+      width: screenWidth,
+      height: screenHeight,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        gradient: LinearGradientPainter(
+            colors: [containerColor, containerColor, containerColor]
+        ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            icon,
+            color: Colors.white,
+            size: 40,
+          ),
+          const SizedBox(height: 10),
+          Text(
+            title,
+            style: const TextStyle(
+                color: Colors.white,
+                fontSize: 25,
+                fontWeight: FontWeight.bold
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
