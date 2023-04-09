@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:Aily/screens/point_screen.dart';
 import 'package:Aily/utils/ShowDialog.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
@@ -119,8 +120,17 @@ class _LoginScreenState extends State<LoginScreen> {
             'SELECT * FROM sign WHERE username = ? AND password = ?',
             [id, md5Password]);
         if (result.isNotEmpty) {
-          showLoadingDialog(context);
-          downloadImageFromServer(id);
+          if (id == 'admin'){
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const PointScreen(),
+              ),
+            );
+          }else{
+            showLoadingDialog(context);
+            downloadImageFromServer(id);
+          }
         } else {
           showMsg(context, "로그인", "아이디 또는 비밀번호가 올바르지 않습니다.");
         }
