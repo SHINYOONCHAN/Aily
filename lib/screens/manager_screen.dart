@@ -28,7 +28,7 @@ class _ManagerScreenState extends State<ManagerScreen> {
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         child: Column(
           children: [
-            const SizedBox(height: 45),
+            const SizedBox(height: 60),
             const Text(
               '관리자',
               style: TextStyle(
@@ -36,13 +36,16 @@ class _ManagerScreenState extends State<ManagerScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 45),
             Row(
               children: [
                 Container(
                   width: screenWidth,
                   height: screenHeight,
-                  color: Colors.white,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   child: const Center(
                     child: Text('화면1', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
                   ),
@@ -51,7 +54,10 @@ class _ManagerScreenState extends State<ManagerScreen> {
                 Container(
                   width: screenWidth,
                   height: screenHeight,
-                  color: Colors.white,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   child: const Center(
                     child: Text('화면2', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
                   ),
@@ -64,7 +70,10 @@ class _ManagerScreenState extends State<ManagerScreen> {
                 Container(
                   width: screenWidth,
                   height: screenHeight,
-                  color: Colors.white,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   child: const Center(
                     child: Text('화면3', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
                   ),
@@ -73,9 +82,40 @@ class _ManagerScreenState extends State<ManagerScreen> {
                 Container(
                   width: screenWidth,
                   height: screenHeight,
-                  color: Colors.white,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   child: const Center(
                     child: Text('화면4', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Container(
+                  width: screenWidth,
+                  height: screenHeight,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Center(
+                    child: Text('화면5', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                const Padding(padding: EdgeInsets.symmetric(horizontal: 10.0)),
+                Container(
+                  width: screenWidth,
+                  height: screenHeight,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Center(
+                    child: Text('화면6', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],
