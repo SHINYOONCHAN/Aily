@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:Aily/screens/point_screen.dart';
+import 'manager_screen.dart';
 import 'package:Aily/utils/ShowDialog.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
@@ -124,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const PointScreen(),
+                builder: (context) => const ManagerScreen(),
               ),
             );
           }else{
