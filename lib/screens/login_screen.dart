@@ -33,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Uint8List? _downimageData;
   bool _isUploading = false;
   bool _isDownloading = false;
-  final storage = FlutterSecureStorage();
+  final storage = const FlutterSecureStorage();
   @override
   void initState() {
     super.initState();
@@ -90,11 +90,10 @@ class _LoginScreenState extends State<LoginScreen> {
         userProvider.updateUsername(id);
         userProvider.updateProfile(_downimageData!);
 
-        Navigator.push(
+        Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(
-            builder: (context) => const NavigatorScreen(),
-          ),
+          MaterialPageRoute(builder: (context) => const NavigatorScreen()),
+              (route) => false,
         );
 
       }
@@ -122,7 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (result.isNotEmpty) {
         if (id == 'admin'){
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => const ManagerScreen(),
@@ -157,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
         if (result.isNotEmpty) {
           saveLoginInfo(id, md5Password);
           if (id == 'admin'){
-            Navigator.push(
+            Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (context) => const ManagerScreen(),
