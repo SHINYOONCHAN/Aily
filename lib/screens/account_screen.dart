@@ -66,6 +66,7 @@ class _Account_screenState extends State<Account_screen> {
         builder: (context) => const LoginScreen(),
       ),
     );
+    showMsg(context, '로그아웃', '로그아웃 되었습니다.');
   }
 
 
