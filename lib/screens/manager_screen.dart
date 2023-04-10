@@ -2,7 +2,10 @@ import 'package:Aily/screens/home_screen.dart';
 import 'package:Aily/screens/map_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:Aily/utils/ShowDialog.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:gradients/gradients.dart';
+
+import 'login_screen.dart';
 
 class ManagerScreen extends StatefulWidget {
   const ManagerScreen({Key? key}) : super(key: key);
@@ -14,6 +17,28 @@ class ManagerScreen extends StatefulWidget {
 class _ManagerScreenState extends State<ManagerScreen> {
   Color myColor = const Color(0xFFF8B195);
   Color backColor = const Color(0xFFF6F1F6);
+  final storage = const FlutterSecureStorage();
+
+  Future<void> logout() async {
+    await storage.delete(key: 'id');
+    await storage.delete(key: 'pw');
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const LoginScreen(),
+      ),
+    );
+    showMsg(context, '로그아웃', '로그아웃 되었습니다.');
+  }
+
+  Future<void> _WidgetScreen(Widget widget) async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => widget,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,14 +69,14 @@ class _ManagerScreenState extends State<ManagerScreen> {
                   context,
                   '위치',
                   Icons.location_on,
-                  const MapScreen(),
+                      () => _WidgetScreen(const MapScreen()),
                 ),
                 const Padding(padding: EdgeInsets.symmetric(horizontal: 10.0)),
                 buildNavigationContainer(
                   context,
-                  '화면2',
+                  '미정',
                   Icons.settings,
-                  const HomeScreen(),
+                      () => _WidgetScreen(const HomeScreen()),
                 ),
               ],
             ),
@@ -60,16 +85,16 @@ class _ManagerScreenState extends State<ManagerScreen> {
               children: [
                 buildNavigationContainer(
                   context,
-                  '화면3',
+                  '미정',
                   Icons.settings,
-                  const MapScreen(),
+                      () => _WidgetScreen(const MapScreen()),
                 ),
                 const Padding(padding: EdgeInsets.symmetric(horizontal: 10.0)),
                 buildNavigationContainer(
                   context,
-                  '화면4',
+                  '미정',
                   Icons.settings,
-                  const MapScreen(),
+                      () => _WidgetScreen(const MapScreen()),
                 ),
               ],
             ),
@@ -78,16 +103,16 @@ class _ManagerScreenState extends State<ManagerScreen> {
               children: [
                 buildNavigationContainer(
                   context,
-                  '화면5',
+                  '미정',
                   Icons.settings,
-                  const MapScreen(),
+                      () => _WidgetScreen(const MapScreen()),
                 ),
                 const Padding(padding: EdgeInsets.symmetric(horizontal: 10.0)),
                 buildNavigationContainer(
                   context,
-                  '화면6',
-                  Icons.settings,
-                  const MapScreen(),
+                  '로그아웃',
+                  Icons.logout,
+                      () => logout(),
                 ),
               ],
             ),
@@ -102,16 +127,14 @@ Widget buildNavigationContainer(
     BuildContext context,
     String title,
     IconData icon,
-    Widget page
+    Function() onTap,
     ) {
   var screenWidth = MediaQuery.of(context).size.width * 0.423;
   var screenHeight = MediaQuery.of(context).size.height * 0.217;
   Color containerColor = const Color(0xFF87A7dD);
 
   return GestureDetector(
-    onTap: () {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => page));
-    },
+    onTap: onTap,
     child: Container(
       width: screenWidth,
       height: screenHeight,
