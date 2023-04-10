@@ -10,6 +10,7 @@ import 'package:Aily/proves/UserProvider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import '../widgets/Navigator.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -32,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Uint8List? _downimageData;
   bool _isUploading = false;
   bool _isDownloading = false;
-
+  final storage = FlutterSecureStorage();
   @override
   void initState() {
     super.initState();
@@ -53,6 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     ).then((connection) {
       conn = connection;
+      tryAutoLogin();
     });
   }
 
@@ -105,9 +107,42 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<void> saveLoginInfo(String id, String pw) async {
+    await storage.write(key: 'id', value: id);
+    await storage.write(key: 'pw', value: pw);
+  }
+
+  Future<void> tryAutoLogin() async {
+    final id = await storage.read(key: 'id');
+    final pw = await storage.read(key: 'pw');
+    try {
+      final result = await conn.query(
+          'SELECT * FROM sign WHERE username = ? AND password = ?',
+          [id, pw]);
+
+      if (result.isNotEmpty) {
+        if (id == 'admin'){
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const ManagerScreen(),
+            ),
+          );
+        }else{
+          showLoadingDialog(context);
+          downloadImageFromServer(id!);
+        }
+      }
+    } catch (e) {
+      print('try error print : $e');
+      showMsg(context, "로그인", "오류가 발생했습니다.");
+    }
+  }
+
   Future<void> login() async {
     final String id = _idController.text.trim();
     final String pw = _passwordController.text.trim();
+
     var bytes = utf8.encode(pw); // 문자열을 바이트 배열로 변환
     var md5Result = md5.convert(bytes); // MD5 해시 값 생성
     String md5Password = md5Result.toString();
@@ -120,6 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
             'SELECT * FROM sign WHERE username = ? AND password = ?',
             [id, md5Password]);
         if (result.isNotEmpty) {
+          saveLoginInfo(id, md5Password);
           if (id == 'admin'){
             Navigator.push(
               context,
@@ -135,6 +171,7 @@ class _LoginScreenState extends State<LoginScreen> {
           showMsg(context, "로그인", "아이디 또는 비밀번호가 올바르지 않습니다.");
         }
       } catch (e) {
+        print('error print : $e');
         showMsg(context, "로그인", "오류가 발생했습니다.");
       }
     }

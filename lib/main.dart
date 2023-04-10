@@ -7,7 +7,6 @@ import 'proves/mapTitleProvider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await Future.delayed(const Duration(seconds: 1));
   FlutterNativeSplash.remove();
 

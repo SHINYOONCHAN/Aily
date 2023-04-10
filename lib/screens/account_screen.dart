@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:Aily/screens/login_screen.dart';
 import 'package:Aily/utils/ShowDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:Aily/proves/UserProvider.dart';
@@ -23,6 +25,7 @@ class _Account_screenState extends State<Account_screen> {
   File? _image;
   late String? username;
   late Uint8List? profile;
+  final storage = FlutterSecureStorage();
 
   Future<void> _getUser() async {
     final UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
@@ -53,6 +56,18 @@ class _Account_screenState extends State<Account_screen> {
     conn.close();
     super.dispose();
   }
+
+  Future<void> logout() async {
+    await storage.delete(key: 'id');
+    await storage.delete(key: 'pw');
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const LoginScreen(),
+      ),
+    );
+  }
+
 
   Future<void> _scanQRCode() async {
     String qrCode = await FlutterBarcodeScanner.scanBarcode(
@@ -237,6 +252,15 @@ class _Account_screenState extends State<Account_screen> {
                       trailing: const Icon(Icons.arrow_forward_ios, color: Colors.black),
                       onTap: () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) => const NoticeScreen()));
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    ListTile(
+                      leading: const Icon(Icons.logout),
+                      title: const Text('로그아웃', style: TextStyle(fontWeight: FontWeight.bold)),
+                      trailing: const Icon(Icons.arrow_forward_ios, color: Colors.black),
+                      onTap: () {
+                        logout();
                       },
                     ),
                   ],
