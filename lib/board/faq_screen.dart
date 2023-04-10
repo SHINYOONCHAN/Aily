@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class FAQPage extends StatefulWidget {
-  const FAQPage({Key? key}) : super(key: key);
+class FAQScreen extends StatefulWidget {
+  const FAQScreen({Key? key}) : super(key: key);
 
   @override
-  _FAQPageState createState() => _FAQPageState();
+  _FAQScreenState createState() => _FAQScreenState();
 }
 
-class _FAQPageState extends State<FAQPage> {
+class _FAQScreenState extends State<FAQScreen> {
   Color myColor = const Color(0xFFF8B195);
 
   @override

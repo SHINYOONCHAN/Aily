@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class NoticePage extends StatefulWidget {
-  const NoticePage({Key? key}) : super(key: key);
+class NoticeScreen extends StatefulWidget {
+  const NoticeScreen({Key? key}) : super(key: key);
 
   @override
-  _NoticePageState createState() => _NoticePageState();
+  _NoticeScreenState createState() => _NoticeScreenState();
   }
 
-  class _NoticePageState extends State<NoticePage> {
+  class _NoticeScreenState extends State<NoticeScreen> {
   Color myColor = const Color(0xFFF8B195);
 
   @override

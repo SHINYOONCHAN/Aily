@@ -7,6 +7,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:Aily/proves/UserProvider.dart';
 import 'package:provider/provider.dart';
+import 'package:Aily/board/faq_screen.dart';
+import 'package:Aily/board/notice_screen.dart';
 
 class Account_screen extends StatefulWidget {
   const Account_screen({Key? key}) : super(key: key);
@@ -225,7 +227,7 @@ class _Account_screenState extends State<Account_screen> {
                       title: const Text('자주 묻는 질문(FAQ)', style: TextStyle(fontWeight: FontWeight.bold)),
                       trailing: const Icon(Icons.arrow_forward_ios, color: Colors.black),
                       onTap: () {
-                        showMsg(context, 'FAQ', 'FAQ');
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const FAQScreen()));
                       },
                     ),
                     const SizedBox(height: 10),
@@ -234,7 +236,7 @@ class _Account_screenState extends State<Account_screen> {
                       title: const Text('공지사항', style: TextStyle(fontWeight: FontWeight.bold)),
                       trailing: const Icon(Icons.arrow_forward_ios, color: Colors.black),
                       onTap: () {
-                        showMsg(context, '공지사항', '공지사항');
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const NoticeScreen()));
                       },
                     ),
                   ],
