@@ -95,7 +95,6 @@ class _LoginScreenState extends State<LoginScreen> {
           MaterialPageRoute(builder: (context) => const NavigatorScreen()),
               (route) => false,
         );
-
       }
     } catch (e) {
       showMsg(context, "오류", '다운로드 실패');
@@ -121,11 +120,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (result.isNotEmpty) {
         if (id == 'admin'){
-          Navigator.pushReplacement(
+          Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(
-              builder: (context) => const ManagerScreen(),
-            ),
+            MaterialPageRoute(builder: (context) => const ManagerScreen()),
+                (route) => false,
           );
         }else{
           showLoadingDialog(context);
@@ -156,11 +154,10 @@ class _LoginScreenState extends State<LoginScreen> {
         if (result.isNotEmpty) {
           saveLoginInfo(id, md5Password);
           if (id == 'admin'){
-            Navigator.pushReplacement(
+            Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(
-                builder: (context) => const ManagerScreen(),
-              ),
+              MaterialPageRoute(builder: (context) => const ManagerScreen()),
+                  (route) => false,
             );
           }else{
             showLoadingDialog(context);
