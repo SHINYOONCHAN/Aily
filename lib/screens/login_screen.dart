@@ -175,7 +175,6 @@ class _LoginScreenState extends State<LoginScreen> {
     final String id = _signidController.text.trim();
     final String pw = _signpwController.text.trim();
     final String confirmPw = _signpwController2.text.trim();
-
     var bytes = utf8.encode(pw); // 문자열을 바이트 배열로 변환
     var md5Result = md5.convert(bytes); // MD5 해시 값 생성
     String md5Password = md5Result.toString();
@@ -190,7 +189,10 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     // 회원가입 처리 로직 구현
-    if (id.isEmpty || pw.isEmpty || confirmPw.isEmpty) {
+    if (id.contains(' ') || pw.contains(' ')) {
+      showMsg(context, "회원가입", "아이디 또는 비밀번호에 공백이 포함되어 있습니다.");
+    }
+    else if (id.isEmpty || pw.isEmpty || confirmPw.isEmpty) {
       showMsg(context, "회원가입", "아이디 또는 비밀번호를 입력해주세요.");
     } else {
       try {
@@ -207,7 +209,6 @@ class _LoginScreenState extends State<LoginScreen> {
         if (e is MySqlException && e.errorNumber == 1062) {
           showMsg(context, "회원가입", "중복된 아이디입니다.");
         } else {
-          print('무슨에러일까 : $e');
           showMsg(context, "회원가입", "오류가 발생했습니다.");
         }
       }
