@@ -87,20 +87,17 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
   }
 
   Widget MapWidget(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-      child: GoogleMap(
-        initialCameraPosition: const CameraPosition(
-          target: LatLng(37.500936916629, 126.86674390514),
-          zoom: 18,
-        ),
-        markers: markers,
-        onMapCreated: ((mapController) {
-          setState(() {
-            controller = mapController;
-          });
-        }),
+    return GoogleMap(
+      initialCameraPosition: const CameraPosition(
+        target: LatLng(37.500936916629, 126.86674390514),
+        zoom: 18,
       ),
+      markers: markers,
+      onMapCreated: ((mapController) {
+        setState(() {
+          controller = mapController;
+        });
+      }),
     );
   }
 }
