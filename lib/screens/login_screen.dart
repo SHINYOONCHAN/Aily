@@ -131,7 +131,6 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       }
     } catch (e) {
-      print('try error print : $e');
       showMsg(context, "로그인", "오류가 발생했습니다.");
     }
   }
@@ -151,7 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
         final result = await conn.query(
             'SELECT * FROM sign WHERE username = ? AND password = ?',
             [id, md5Password]);
-        if (result.isNotEmpty) {
+        if (result.isNotEmpty && result.first["username"] == id) {
           saveLoginInfo(id, md5Password);
           if (id == 'admin'){
             Navigator.pushAndRemoveUntil(
@@ -167,7 +166,6 @@ class _LoginScreenState extends State<LoginScreen> {
           showMsg(context, "로그인", "아이디 또는 비밀번호가 올바르지 않습니다.");
         }
       } catch (e) {
-        print('error print : $e');
         showMsg(context, "로그인", "오류가 발생했습니다.");
       }
     }
@@ -209,6 +207,7 @@ class _LoginScreenState extends State<LoginScreen> {
         if (e is MySqlException && e.errorNumber == 1062) {
           showMsg(context, "회원가입", "중복된 아이디입니다.");
         } else {
+          print('무슨에러일까 : $e');
           showMsg(context, "회원가입", "오류가 발생했습니다.");
         }
       }
