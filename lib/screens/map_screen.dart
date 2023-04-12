@@ -1,3 +1,4 @@
+import 'package:Aily/utils/ShowDialog.dart';
 import 'package:label_marker/label_marker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -140,7 +141,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
         Stack(
           children: [
             SizedBox(
-              height: MediaQuery.of(context).size.height / 2,
+              height: MediaQuery.of(context).size.height / 2.4,
               child: GoogleMap(
                 initialCameraPosition: const CameraPosition(
                   target: LatLng(37.500936916629, 126.86674390514),
@@ -158,7 +159,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
         ),
         Container(
           width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height / 2.376,
+          height: MediaQuery.of(context).size.height / 1.983,
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.only(
@@ -166,29 +167,63 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
               topRight: Radius.circular(30.0),
             ),
           ),
-          child: TextField(
-            decoration: InputDecoration(
-              hintText: '주소, 지역 검색',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
+          child: Column(
+            children: [
+              const SizedBox(height: 10),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      TextField(
+                        decoration: InputDecoration(
+                          contentPadding: const EdgeInsets.all(20.0),
+                          hintText: '주소, 지역 검색',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: myColor),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Colors.black),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          suffixIcon: IconButton(
+                            color: Colors.black,
+                            icon: const Icon(Icons.search),
+                            onPressed: (){
+                              showMsg(context, '테스트', 'Icon Button Click');
+                            },
+                          ),
+                        ),
+                        obscureText: false,
+                      ),
+                      const SizedBox(height: 20),
+                      ListTile(
+                        title: Text('동양미래대학교1'),
+                        onTap: () {
+
+                        },
+                      ),
+                      ListTile(
+                        title: Text('동양미래대학교2'),
+                        onTap: () {
+
+                        },
+                      ),
+                      ListTile(
+                        title: Text('동양미래대학교3'),
+                        onTap: () {
+
+                        },
+                      ),
+                      // 이하 생략
+                    ],
+                  ),
+                ),
               ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: myColor),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: Colors.grey),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              suffixIcon: IconButton(
-                color: Colors.black,
-                icon: const Icon(Icons.search),
-                onPressed: (){
-                  print('Icon Button Click');
-                },
-              ),
-            ),
-            obscureText: false,
+            ],
           ),
         ),
       ],
