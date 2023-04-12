@@ -25,7 +25,7 @@ class _Account_screenState extends State<Account_screen> {
   File? _image;
   late String? username;
   late Uint8List? profile;
-  final storage = FlutterSecureStorage();
+  final storage = const FlutterSecureStorage();
 
   Future<void> _getUser() async {
     final UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);

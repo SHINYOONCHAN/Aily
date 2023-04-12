@@ -78,7 +78,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> with TickerProviderSt
         notchMargin: 8.0,
         color: Colors.white,
         child: SizedBox(
-          height: 60.0,
+          height: MediaQuery.of(context).size.height * 0.079,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
