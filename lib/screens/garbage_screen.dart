@@ -27,7 +27,7 @@ class _GarbageScreenState extends State<GarbageScreen> {
   Future<void> fetchGarbage() async {
     try {
       var response = await http.get(
-          Uri.parse("https://bit.ly/3KGf7ez"));
+          Uri.parse("http://211.201.93.173:8080/api/garbage"));
       if (response.statusCode == 200) {
         responseBody = convert.jsonDecode(response.body);
       }

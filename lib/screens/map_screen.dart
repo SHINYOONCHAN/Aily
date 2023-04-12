@@ -86,18 +86,112 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
     );
   }
 
-  Widget MapWidget(BuildContext context) {
-    return GoogleMap(
-      initialCameraPosition: const CameraPosition(
-        target: LatLng(37.500936916629, 126.86674390514),
-        zoom: 18,
+  void BottomSheet () {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(40),
+          topRight: Radius.circular(40),
+          bottomLeft: Radius.circular(40),
+          bottomRight: Radius.circular(40),
+        ),
       ),
-      markers: markers,
-      onMapCreated: ((mapController) {
-        setState(() {
-          controller = mapController;
-        });
-      }),
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: EdgeInsets.only(
+              bottom: MediaQuery
+                  .of(context)
+                  .viewInsets
+                  .bottom),
+          child: SingleChildScrollView(
+            child: Container(
+              height: MediaQuery
+                  .of(context)
+                  .size
+                  .height * 0.6,
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 20.0, vertical: 40.0),
+              child: Form(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment
+                      .stretch,
+                  children: const [
+                    Text(
+                      '회원가입',
+                      style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget MapWidget(BuildContext context) {
+    return Column(
+      children: [
+        Stack(
+          children: [
+            SizedBox(
+              height: MediaQuery.of(context).size.height / 2,
+              child: GoogleMap(
+                initialCameraPosition: const CameraPosition(
+                  target: LatLng(37.500936916629, 126.86674390514),
+                  zoom: 18,
+                ),
+                markers: markers,
+                onMapCreated: ((mapController) {
+                  setState(() {
+                    controller = mapController;
+                  });
+                }),
+              ),
+            ),
+          ],
+        ),
+        Container(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height / 2.376,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30.0),
+              topRight: Radius.circular(30.0),
+            ),
+          ),
+          child: TextField(
+            decoration: InputDecoration(
+              hintText: '주소, 지역 검색',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: myColor),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: const BorderSide(color: Colors.grey),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              suffixIcon: IconButton(
+                color: Colors.black,
+                icon: const Icon(Icons.search),
+                onPressed: (){
+                  print('Icon Button Click');
+                },
+              ),
+            ),
+            obscureText: false,
+          ),
+        ),
+      ],
     );
   }
 }
