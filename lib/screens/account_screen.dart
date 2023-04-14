@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:Aily/screens/login_screen.dart';
 import 'package:Aily/utils/ShowDialog.dart';
 import 'package:dio/dio.dart';
@@ -27,8 +26,7 @@ class _Account_screenState extends State<Account_screen> {
   late String? username;
   late File? profile;
   final storage = const FlutterSecureStorage();
-  late String? _imageUrl;
-  late bool _isLoading;
+
 
   Future<void> _getUser() async {
     final UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
@@ -101,10 +99,7 @@ class _Account_screenState extends State<Account_screen> {
       final response = await Dio().post('http://211.201.93.173:8080/upload', data: formData);
 
       if (response.statusCode == 200) {
-        setState(() {
-          _imageUrl = response.data;
-          _isLoading = false;
-        });
+        //
       }
     } catch (e) {
       //
