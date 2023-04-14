@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:Aily/screens/login_screen.dart';
@@ -11,6 +12,7 @@ import 'package:Aily/proves/UserProvider.dart';
 import 'package:provider/provider.dart';
 import 'package:Aily/board/faq_screen.dart';
 import 'package:Aily/board/notice_screen.dart';
+import 'package:http/http.dart' as http;
 
 class Account_screen extends StatefulWidget {
   const Account_screen({Key? key}) : super(key: key);
@@ -26,6 +28,7 @@ class _Account_screenState extends State<Account_screen> {
   late String? username;
   late Uint8List? profile;
   final storage = const FlutterSecureStorage();
+  late String? _imageUrl;
 
   Future<void> _getUser() async {
     final UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
@@ -102,10 +105,32 @@ class _Account_screenState extends State<Account_screen> {
       return;
     }
     try {
-      await uploadImageToServer(_image!);
+      await _uploadImage(_image!);
     } catch (e) {
       showMsg(context, "오류", '업로드 실패');
     } finally {
+    }
+  }
+
+  Future<void> _uploadImage(File imageFile) async {
+    final bytes = await imageFile.readAsBytes();
+    final imgData = bytes.toList();
+    final imageData = base64Encode(imgData);
+
+    final response = await http.post(
+      Uri.parse('http://211.201.93.173:8080/upload'),
+      body: {
+        'username': username,
+        'image': imageData,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _imageUrl = response.body;
+      });
+    } else {
+      throw Exception('Failed to upload image');
     }
   }
 
@@ -178,7 +203,7 @@ class _Account_screenState extends State<Account_screen> {
                             right: 18,
                             child: GestureDetector(
                               onTap: () {
-                                showMsg(context, '설정', '설정');
+                                //showMsg(context, '설정', '설정');
                               },
                               child: const Icon(
                                 Icons.settings,
