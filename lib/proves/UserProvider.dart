@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:Aily/class/User.dart';
+import 'package:provider/provider.dart';
 
 class UserProvider extends ChangeNotifier {
   late User _user;
@@ -15,7 +17,7 @@ class UserProvider extends ChangeNotifier {
     updateUser(newUser);
   }
 
-  void updateProfile(String newProfile) {
+  void updateProfile(File? newProfile) {
     final User newUser = User(username: _user.username, profile: newProfile);
     updateUser(newUser);
   }

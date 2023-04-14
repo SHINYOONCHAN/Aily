@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 import 'manager_screen.dart';
 import 'package:Aily/utils/ShowDialog.dart';
 import 'package:crypto/crypto.dart';
@@ -37,6 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isDownloading = false;
   final storage = const FlutterSecureStorage();
   late String image;
+  late File? profile;
 
   @override
   void initState() {
@@ -47,19 +50,6 @@ class _LoginScreenState extends State<LoginScreen> {
     _signidController = TextEditingController();
     _signpwController = TextEditingController();
     _signpwController2 = TextEditingController();
-
-    // MySqlConnection.connect(
-    //   ConnectionSettings(
-    //     host: '211.201.93.173',//'175.113.68.69',
-    //     port: 3306,
-    //     user: 'root',
-    //     password: '488799',
-    //     db: 'user_db',
-    //   ),
-    // ).then((connection) {
-    //   conn = connection;
-    //   tryAutoLogin();
-    // });
   }
 
   @override
@@ -77,17 +67,33 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> downloadImageFromServer(String id) async {
     try {
+      //서버에서 받은 이미지 url을 File타입에 맞게 가공
+      final directory = await getApplicationDocumentsDirectory();
+      final imagePath = '${directory.path}/profile.png';
+      final profileFile = File(imagePath);
+
+      try {
+        final response = await http.get(Uri.parse(image));
+        await profileFile.writeAsBytes(response.bodyBytes);
+        setState(() {
+          profile = profileFile;
+        });
+      } catch (e) {
+        //
+      }
+      //유저프로필에 저장
       final UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
       userProvider.updateUsername(id);
-      userProvider.updateProfile(image);
+      userProvider.updateProfile(profile);
 
+      //현재 페이지를 제거 후 페이지 이동
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => const NavigatorScreen()),
             (route) => false,
       );
     } catch (e) {
-      showMsg(context, "오류", '다운로드 실패 $e');
+      //다운로드 실패
     }
   }
 
