@@ -170,58 +170,54 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
           child: Column(
             children: [
               const SizedBox(height: 10),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      TextField(
-                        decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.all(20.0),
-                          hintText: '주소, 지역 검색',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: myColor),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Colors.black),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          suffixIcon: IconButton(
-                            color: Colors.black,
-                            icon: const Icon(Icons.search),
-                            onPressed: (){
-                              showMsg(context, '테스트', 'Icon Button Click');
-                            },
-                          ),
-                        ),
-                        obscureText: false,
+              Column(
+                children: [
+                  TextField(
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                      hintText: '주소, 지역 검색',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      const SizedBox(height: 20),
-                      ListTile(
-                        title: Text('동양미래대학교1'),
-                        onTap: () {
-
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: myColor),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Colors.black),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      suffixIcon: IconButton(
+                        color: Colors.black,
+                        icon: const Icon(Icons.search),
+                        onPressed: (){
+                          showMsg(context, '테스트', 'Icon Button Click');
                         },
                       ),
-                      ListTile(
-                        title: Text('동양미래대학교2'),
-                        onTap: () {
-
-                        },
-                      ),
-                      ListTile(
-                        title: Text('동양미래대학교3'),
-                        onTap: () {
-
-                        },
-                      ),
-                      // 이하 생략
-                    ],
+                    ),
+                    obscureText: false,
                   ),
-                ),
+                  const SizedBox(height: 20),
+                  ListTile(
+                    title: Text('동양미래대학교1'),
+                    onTap: () {
+
+                    },
+                  ),
+                  ListTile(
+                    title: Text('동양미래대학교2'),
+                    onTap: () {
+
+                    },
+                  ),
+                  ListTile(
+                    title: Text('동양미래대학교3'),
+                    onTap: () {
+
+                    },
+                  ),
+                  // 이하 생략
+                ],
               ),
             ],
           ),

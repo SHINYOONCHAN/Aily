@@ -1,17 +1,10 @@
-import 'package:flutter/services.dart';
-
 class User {
   final String username;
-  final Future<Uint8List> profile;
+  final String profile;
 
   User({required this.username, required this.profile});
 
-  static Future<Uint8List> loadDefaultProfileImage() async {
-    final ByteData imageData = await rootBundle.load('assets/images/default.png');
-    return imageData.buffer.asUint8List();
-  }
-
   factory User.withDefaultProfile({required String username}) {
-    return User(username: username, profile: loadDefaultProfileImage());
+    return User(username: username, profile: 'http://211.201.93.173:8080/static/images/default/image.png');
   }
 }

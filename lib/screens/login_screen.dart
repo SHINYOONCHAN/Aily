@@ -11,6 +11,8 @@ import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import '../widgets/Navigator.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -34,6 +36,8 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isUploading = false;
   bool _isDownloading = false;
   final storage = const FlutterSecureStorage();
+  late String image;
+
   @override
   void initState() {
     super.initState();
@@ -44,18 +48,18 @@ class _LoginScreenState extends State<LoginScreen> {
     _signpwController = TextEditingController();
     _signpwController2 = TextEditingController();
 
-    MySqlConnection.connect(
-      ConnectionSettings(
-        host: '211.201.93.173',//'175.113.68.69',
-        port: 3306,
-        user: 'root',
-        password: '488799',
-        db: 'user_db',
-      ),
-    ).then((connection) {
-      conn = connection;
-      tryAutoLogin();
-    });
+    // MySqlConnection.connect(
+    //   ConnectionSettings(
+    //     host: '211.201.93.173',//'175.113.68.69',
+    //     port: 3306,
+    //     user: 'root',
+    //     password: '488799',
+    //     db: 'user_db',
+    //   ),
+    // ).then((connection) {
+    //   conn = connection;
+    //   tryAutoLogin();
+    // });
   }
 
   @override
@@ -72,36 +76,18 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> downloadImageFromServer(String id) async {
-    setState(() {
-      _isDownloading = true;
-    });
     try {
-      final result = await conn.query('SELECT image FROM sign WHERE username = ?;', [id]);
-      if (result.isNotEmpty) {
-        final rowData = result.first;
-        final imgData = rowData['image'] as Blob;
-        final bytes = imgData.toBytes();
-        setState(() {
-          _downimageData = bytes as Uint8List?;
-        });
-      }
-      if (_downimageData != null){
-        final UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
-        userProvider.updateUsername(id);
-        userProvider.updateProfile(_downimageData!);
+      final UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
+      userProvider.updateUsername(id);
+      userProvider.updateProfile(image);
 
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const NavigatorScreen()),
-              (route) => false,
-        );
-      }
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const NavigatorScreen()),
+            (route) => false,
+      );
     } catch (e) {
-      showMsg(context, "오류", '다운로드 실패');
-    } finally {
-      setState(() {
-        _isDownloading = false;
-      });
+      showMsg(context, "오류", '다운로드 실패 $e');
     }
   }
 
@@ -135,6 +121,20 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<http.Response> loginUser(String id, String password) async {
+    final response = await http.post(
+      Uri.parse('http://211.201.93.173:8081/api/login'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'id': id,
+        'password': password,
+      })
+    );
+    return response;
+  }
+
   Future<void> login() async {
     final String id = _idController.text.trim();
     final String pw = _passwordController.text.trim();
@@ -147,10 +147,11 @@ class _LoginScreenState extends State<LoginScreen> {
       showMsg(context, "로그인", "아이디 또는 비밀번호를 입력해주세요.");
     } else {
       try {
-        final result = await conn.query(
-            'SELECT * FROM sign WHERE username = ? AND password = ?',
-            [id, md5Password]);
-        if (result.isNotEmpty && result.first["username"] == id) {
+        http.Response response = await loginUser(id, md5Password);
+        if (response.statusCode == 200){
+          //로그인 성공
+          var jsonResponse = jsonDecode(response.body);
+          image = jsonResponse[0]['image'];
           saveLoginInfo(id, md5Password);
           if (id == 'admin'){
             Navigator.pushAndRemoveUntil(
@@ -162,14 +163,49 @@ class _LoginScreenState extends State<LoginScreen> {
             showLoadingDialog(context);
             downloadImageFromServer(id);
           }
-        } else {
-          showMsg(context, "로그인", "아이디 또는 비밀번호가 올바르지 않습니다.");
         }
       } catch (e) {
-        showMsg(context, "로그인", "오류가 발생했습니다.");
+        showMsg(context, "로그인", "아이디 또는 비밀번호가 올바르지 않습니다.");
       }
     }
   }
+
+  // Future<void> login() async {
+  //   final String id = _idController.text.trim();
+  //   final String pw = _passwordController.text.trim();
+  //
+  //   var bytes = utf8.encode(pw); // 문자열을 바이트 배열로 변환
+  //   var md5Result = md5.convert(bytes); // MD5 해시 값 생성
+  //   String md5Password = md5Result.toString();
+  //   // 로그인 처리 로직 구현
+  //   if (id.isEmpty || pw.isEmpty) {
+  //     showMsg(context, "로그인", "아이디 또는 비밀번호를 입력해주세요.");
+  //   } else {
+  //     try {
+  //       final result = await conn.query(
+  //           'SELECT * FROM sign WHERE username = ? AND password = ?',
+  //           [id, md5Password]);
+  //       print('무슨 문자가 나올까 : $result');
+  //       if (result.isNotEmpty && result.first["username"] == id) {
+  //         saveLoginInfo(id, md5Password);
+  //         if (id == 'admin'){
+  //           Navigator.pushAndRemoveUntil(
+  //             context,
+  //             MaterialPageRoute(builder: (context) => const ManagerScreen()),
+  //                 (route) => false,
+  //           );
+  //         }else{
+  //           showLoadingDialog(context);
+  //           downloadImageFromServer(id);
+  //         }
+  //       } else {
+  //         showMsg(context, "로그인", "아이디 또는 비밀번호가 올바르지 않습니다.");
+  //       }
+  //     } catch (e) {
+  //       showMsg(context, "로그인", "오류가 발생했습니다.");
+  //     }
+  //   }
+  // }
 
   Future<void> signup(UserProvider userProvider) async {
     final String id = _signidController.text.trim();
@@ -181,7 +217,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       String username = userProvider.user.username;
-      imgData = await User.loadDefaultProfileImage();
+      //imgData = await User.withDefaultProfile();
       final User user = User.withDefaultProfile(username: username);
       userProvider.updateUser(user);
     } catch (e) {

@@ -3,6 +3,8 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:Aily/screens/login_screen.dart';
 import 'package:Aily/utils/ShowDialog.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -26,14 +28,14 @@ class _Account_screenState extends State<Account_screen> {
   late MySqlConnection conn;
   File? _image;
   late String? username;
-  late Uint8List? profile;
+  late String profile;
   final storage = const FlutterSecureStorage();
-  late String? _imageUrl;
+  late String _imageUrl;
 
   Future<void> _getUser() async {
     final UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
     username = userProvider.user.username;
-    profile = await userProvider.user.profile;
+    profile = userProvider.user.profile;
     setState(() {});
   }
 
@@ -88,51 +90,68 @@ class _Account_screenState extends State<Account_screen> {
 
   void _profileUpdate(){
     final UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
-    userProvider.updateProfile(profile!);
+    userProvider.updateProfile(profile);
   }
 
   Future<void> _pickImage(ImageSource source) async {
     final pickedFile = await ImagePicker().pickImage(source: source);
     if (pickedFile != null) {
-      final bytes = await pickedFile.readAsBytes();
       setState(() {
         _image = File(pickedFile.path);
-        profile = bytes;
-        _profileUpdate();
       });
+      await _uploadImage(_image!); // File 객체를 전달
     }
-    if (_image == null) {
-      return;
-    }
+  }
+
+  Future<void> _uploadImage(File file) async {
     try {
-      await _uploadImage(_image!);
-    } catch (e) {
-      showMsg(context, "오류", '업로드 실패');
-    } finally {
-    }
-  }
-
-  Future<void> _uploadImage(File imageFile) async {
-    final bytes = await imageFile.readAsBytes();
-    final imgData = bytes.toList();
-    final imageData = base64Encode(imgData);
-
-    final response = await http.post(
-      Uri.parse('http://211.201.93.173:8080/upload'),
-      body: {
+      final formData = FormData.fromMap({
         'username': username,
-        'image': imageData,
-      },
-    );
-
-    if (response.statusCode == 200) {
-      setState(() {
-        _imageUrl = response.body;
+        'file': await MultipartFile.fromFile(file.path, filename: 'image.png'),
       });
-    } else {
-      throw Exception('Failed to upload image');
+
+      final response = await Dio().post('http://211.201.93.173:8080/upload', data: formData);
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _imageUrl = response.data;
+          profile = _imageUrl;
+          _profileUpdate();
+        });
+      } else {
+        // 업로드 실패
+      }
+    } catch (e) {
+      // 업로드 실패
     }
   }
+
+  // Future<void> _uploadImage(File imageFile) async {
+  //   final bytes = await imageFile.readAsBytes();
+  //   final imgData = bytes.toList();
+  //   final imageData = base64Encode(imgData);
+  //
+  //   final response = await http.post(
+  //     Uri.parse('http://211.201.93.173:8080/upload'),
+  //     body: {
+  //       'username': username,
+  //       'image': imageData,
+  //     },
+  //   );
+  //   final uri = Uri.parse('ttp://211.201.93.173:8080/upload');
+  //   final request = http.MultipartRequest('POST', uri);
+  //   final image = await http.MultipartFile.fromPath('image', imageFile.path);
+  //   request.files.add(image);
+  //
+  //   final response = await request.send();
+  //   if (response.statusCode == 200) {
+  //     setState(() {
+  //       _imageUrl = response.body;
+  //     });
+  //   } else {
+  //     throw Exception('Failed to upload image');
+  //   }
+  // }
 
   Future<void> uploadImageToServer(File imageFile) async {
     try {
@@ -223,11 +242,11 @@ class _Account_screenState extends State<Account_screen> {
                                 child: CircleAvatar(
                                   backgroundColor: Colors.transparent,
                                   child: ClipOval(
-                                    child: Image.memory(
-                                      profile!,
-                                      width: 60,
-                                      height: 60,
-                                      fit: BoxFit.cover,
+                                    child: Image.network(
+                                      profile,
+                                      width: 80,
+                                      height: 80,
+                                      fit: BoxFit.cover
                                     ),
                                   ),
                                 ),

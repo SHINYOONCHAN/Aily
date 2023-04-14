@@ -15,8 +15,8 @@ class UserProvider extends ChangeNotifier {
     updateUser(newUser);
   }
 
-  void updateProfile(Uint8List newProfile) {
-    final User newUser = User(username: _user.username, profile: Future.value(newProfile));
+  void updateProfile(String newProfile) {
+    final User newUser = User(username: _user.username, profile: newProfile);
     updateUser(newUser);
   }
 
