@@ -308,6 +308,39 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Widget buildTextFormField(String hintText, TextEditingController controller, TextInputType keyboardType, bool obscure) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        hintText: hintText,
+        border: const UnderlineInputBorder(),
+      ),
+      obscureText: obscure,
+    );
+  }
+
+  Widget buildDropdownButtonFormField<T>(
+      List<DropdownMenuItem<T>> items,
+      T value,
+      Function(T?) onChanged,
+      InputDecoration decoration,
+      double width,
+      double height
+      ) {
+    return SizedBox(
+      width: width,
+      height: height,
+      child: DropdownButtonFormField<T>(
+        decoration: decoration,
+        value: value,
+        items: items,
+        onChanged: onChanged,
+        menuMaxHeight: 250,
+      ),
+    );
+  }
+
   Future<void> signSheet () async {
     showModalBottomSheet(
       context: context,
@@ -345,29 +378,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10.0),
-                    TextFormField(
-                      controller: _signidctrl,
-                      decoration: const InputDecoration(
-                        hintText: '아이디 입력',
-                        border: UnderlineInputBorder(),
-                      ),
-                    ),
-                    TextFormField(
-                      controller: _signpwctrl,
-                      decoration: const InputDecoration(
-                        hintText: '비밀번호 입력',
-                        border: UnderlineInputBorder(),
-                      ),
-                      obscureText: true,
-                    ),
-                    TextFormField(
-                      controller: _signpwctrl2,
-                      decoration: const InputDecoration(
-                        hintText: '비밀번호 확인',
-                        border: UnderlineInputBorder(),
-                      ),
-                      obscureText: true,
-                    ),
+                    buildTextFormField('아이디 입력', _signidctrl, TextInputType.text, false),
+                    buildTextFormField('비밀번호 입력', _signpwctrl, TextInputType.visiblePassword, true),
+                    buildTextFormField('비밀번호 확인', _signpwctrl2, TextInputType.visiblePassword, true),
                     const SizedBox(height: 20.0),
                     const Text('생년월일'),
                     Row(
@@ -376,72 +389,73 @@ class _LoginScreenState extends State<LoginScreen> {
                           width: 70,
                           height: 50,
                           child: Expanded(
-                            child: DropdownButtonFormField<int>(
-                              decoration: const InputDecoration(
-                                border: UnderlineInputBorder(),
-                              ),
-                              menuMaxHeight: 250,
-                              value: _selectedYear,
-                              items: List.generate(
-                                100,
-                                    (index) => DropdownMenuItem<int>(
-                                  value: DateTime.now().year - index,
-                                  child: Text(
-                                    '${DateTime.now().year - index}',
+                            child: buildDropdownButtonFormField<int>(
+                                List.generate(
+                                  100,
+                                      (index) => DropdownMenuItem<int>(
+                                    value: DateTime.now().year - index,
+                                    child: Text(
+                                      '${DateTime.now().year - index}',
+                                    ),
                                   ),
                                 ),
-                              ),
-                              onChanged: _updateSelectedYear,
+                                _selectedYear,
+                                _updateSelectedYear,
+                                const InputDecoration(
+                                  border: UnderlineInputBorder(),
+                                ),
+                                70,
+                                50
                             ),
                           ),
                         ),
                         const SizedBox(width: 8.0),
-
                         SizedBox(
                           width: 70,
                           height: 50,
                           child: Expanded(
-                            child: DropdownButtonFormField<int>(
-                              decoration: const InputDecoration(
-                                border: UnderlineInputBorder(),
-                              ),
-                              menuMaxHeight: 250,
-                              value: _selectedMonth,
-                              items: List.generate(
-                                12,
-                                    (index) => DropdownMenuItem<int>(
-                                  value: index + 1,
-                                  child: Text(
-                                    '${index + 1}월',
+                            child: buildDropdownButtonFormField<int>(
+                                List.generate(
+                                  12,
+                                      (index) => DropdownMenuItem<int>(
+                                    value: index + 1,
+                                    child: Text(
+                                      '${index + 1}월',
+                                    ),
                                   ),
                                 ),
-                              ),
-                              onChanged: _updateSelectedMonth,
+                                _selectedMonth,
+                                _updateSelectedMonth,
+                                const InputDecoration(
+                                  border: UnderlineInputBorder(),
+                                ),
+                                70,
+                                50
                             ),
                           ),
                         ),
                         const SizedBox(width: 8.0),
-
                         SizedBox(
                           width: 70,
                           height: 50,
                           child: Expanded(
-                            child: DropdownButtonFormField<int>(
-                              decoration: const InputDecoration(
-                                border: UnderlineInputBorder(),
-                              ),
-                              menuMaxHeight: 250,
-                              value: _selectedDay,
-                              items: List.generate(
-                                31,
-                                    (index) => DropdownMenuItem<int>(
-                                  value: index + 1,
-                                  child: Text(
-                                    '${index + 1}일',
+                            child: buildDropdownButtonFormField<int>(
+                                List.generate(
+                                  31,
+                                      (index) => DropdownMenuItem<int>(
+                                    value: index + 1,
+                                    child: Text(
+                                      '${index + 1}일',
+                                    ),
                                   ),
                                 ),
-                              ),
-                              onChanged: _updateSelectedDay,
+                                _selectedDay,
+                                _updateSelectedDay,
+                                const InputDecoration(
+                                  border: UnderlineInputBorder(),
+                                ),
+                                70,
+                                50
                             ),
                           ),
                         ),
@@ -449,47 +463,34 @@ class _LoginScreenState extends State<LoginScreen> {
                         SizedBox(
                           width: 70,
                           height: 50,
-                          child: Expanded(
-                            child: DropdownButtonFormField<String>(
-                              decoration: const InputDecoration(
-                                border: UnderlineInputBorder(),
-                              ),
-                              value: _selectedGender,
-                              items: _genders.map((gender) {
-                                return DropdownMenuItem<String>(
-                                  value: gender,
-                                  child: Row(
-                                    children: [
-                                      gender == '남'
-                                          ? const Icon(Icons.man, color: Colors.blue)
-                                          : const Icon(Icons.woman, color: Colors.red),
-                                      Text(gender)
-                                    ],
-                                  ),
-                                );
-                              }).toList(),
-                              onChanged: _updateSelectedGender
+                          child: buildDropdownButtonFormField<String>(
+                            _genders.map((gender) {
+                              return DropdownMenuItem<String>(
+                                value: gender,
+                                child: Row(
+                                  children: [
+                                    gender == '남'
+                                        ? const Icon(Icons.man, color: Colors.blue)
+                                        : const Icon(Icons.woman, color: Colors.red),
+                                    Text(gender)
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                            _selectedGender!,
+                            _updateSelectedGender,
+                            const InputDecoration(
+                              border: UnderlineInputBorder(),
                             ),
+                            70,
+                            50,
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 10.0),
-                    TextFormField(
-                      controller: _signnicknamectrl,
-                      decoration: const InputDecoration(
-                          border: UnderlineInputBorder(),
-                          hintText: '이름'
-                      ),
-                    ),
-                    TextFormField(
-                      controller: _signphonectrl,
-                      keyboardType: TextInputType.phone,
-                      decoration: const InputDecoration(
-                        hintText: '전화번호 입력',
-                        border: UnderlineInputBorder(),
-                      ),
-                    ),
+                    buildTextFormField('이름', _signnicknamectrl, TextInputType.text, false),
+                    buildTextFormField('전화번호 입력', _signphonectrl, TextInputType.phone, false),
                     const SizedBox(height: 16.0),
                     ElevatedButton(
                       onPressed: () async {
