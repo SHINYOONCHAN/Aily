@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'manager_screen.dart';
 import 'package:Aily/utils/ShowDialog.dart';
@@ -31,12 +32,20 @@ class _LoginScreenState extends State<LoginScreen> {
   late TextEditingController _signpwctrl;
   late TextEditingController _signpwctrl2;
   late TextEditingController _signphonectrl;
+  late TextEditingController _signnicknamectrl;
 
   Color myColor = const Color(0xFFF8B195);
   late Uint8List imgData;
   final storage = const FlutterSecureStorage();
   late String image;
   late File? profile;
+  late DateTime _selectedDate;
+  String? _selectedGender;
+  final List<String> _genders = ['남', '여'];
+  String? _birth;
+  int _selectedYear = DateTime.now().year;
+  int _selectedMonth = DateTime.now().month;
+  int _selectedDay = DateTime.now().day;
 
   @override
   void initState() {
@@ -48,6 +57,9 @@ class _LoginScreenState extends State<LoginScreen> {
     _signpwctrl = TextEditingController();
     _signpwctrl2 = TextEditingController();
     _signphonectrl = TextEditingController();
+    _signnicknamectrl = TextEditingController();
+    _selectedDate = DateTime(_selectedYear, _selectedMonth, _selectedDay);
+    _selectedGender = '남';
     //tryAutoLogin();
   }
 
@@ -58,7 +70,8 @@ class _LoginScreenState extends State<LoginScreen> {
     _signidctrl.dispose();
     _signpwctrl.dispose();
     _signpwctrl2.dispose();
-
+    _signphonectrl.dispose();
+    _signnicknamectrl.dispose();
     super.dispose();
   }
 
@@ -174,14 +187,14 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<http.Response> signUser(String id, String password) async {
+  Future<http.Response> signUser(String phone, String id, password, nickname, birth) async {
     final Map<String, dynamic> data = {
-      "phonenumber": 1033567285,
+      "phonenumber": phone,
       "id": id,
       "password": password,
-      "birth": "2000-07-07",
-      "nickname": "신윤찬2",
-      "profile": "http://url"
+      "birth": birth,
+      "nickname": nickname,
+      "profile": "http://211.201.93.173:8083/static/images/default/image.png"
     };
 
     final response = await http.post(
@@ -196,6 +209,9 @@ class _LoginScreenState extends State<LoginScreen> {
     final String id = _signidctrl.text.trim();
     final String pw = _signpwctrl.text.trim();
     final String confirmPw = _signpwctrl2.text.trim();
+    final String phone = _signphonectrl.text.trim();
+    final String nickname = _signnicknamectrl.text.trim();
+
     var bytes = utf8.encode(pw); // 문자열을 바이트 배열로 변환
     var md5Result = md5.convert(bytes); // MD5 해시 값 생성
     String md5Password = md5Result.toString();
@@ -213,7 +229,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } else {
       if (pw == confirmPw) {
         try{
-          http.Response response = await signUser(id, md5Password);
+          http.Response response = await signUser(phone, id, md5Password, nickname, _birth);
           final responsebody = json.decode(utf8.decode(response.bodyBytes));
           final error = responsebody['error'];
           if (error == '중복된 닉네임입니다.'){
@@ -235,10 +251,64 @@ class _LoginScreenState extends State<LoginScreen> {
     _signidctrl.clear();
     _signpwctrl.clear();
     _signpwctrl2.clear();
+    _signphonectrl.clear();
+    _signnicknamectrl.clear();
     Navigator.of(context).pop();
   }
 
-  void signSheet () {
+  void _updateSelectedYear(int? year) {
+    setState(() {
+      _selectedYear = year ?? DateTime.now().year;
+      _selectedDate = DateTime(_selectedYear, _selectedMonth, _selectedDay);
+
+      // 해당 월의 마지막 일자를 계산하여 일자수를 업데이트합니다.
+      int daysInMonth = DateTime(_selectedYear, _selectedMonth + 1, 0).day;
+      if (_selectedDay > daysInMonth) {
+        _selectedDay = daysInMonth;
+        _selectedDate = DateTime(_selectedYear, _selectedMonth, _selectedDay);
+        _updateBirth();
+      }
+    });
+  }
+
+  void _updateSelectedMonth(int? month) {
+    setState(() {
+      _selectedMonth = month ?? DateTime.now().month;
+      _selectedDate = DateTime(_selectedYear, _selectedMonth, _selectedDay);
+
+      // 해당 월의 마지막 일자를 계산하여 일자수를 업데이트합니다.
+      int daysInMonth = DateTime(_selectedYear, _selectedMonth + 1, 0).day;
+      if (_selectedDay > daysInMonth) {
+        _selectedDay = daysInMonth;
+        _selectedDate = DateTime(_selectedYear, _selectedMonth, _selectedDay);
+        _updateBirth();
+      }
+    });
+  }
+
+  void _updateSelectedDay(int? day) {
+    setState(() {
+      _selectedDay = day ?? DateTime.now().day;
+      _selectedDate = DateTime(_selectedYear, _selectedMonth, _selectedDay);
+      _updateBirth();
+    });
+  }
+
+  void _updateSelectedGender(String? gender) {
+    setState(() {
+      _selectedGender = gender!;
+    });
+  }
+
+  void _updateBirth() {
+    if (_selectedYear == null || _selectedMonth == null || _selectedDay == null) {
+      _birth = null;
+    } else {
+      _birth = '${_selectedYear!}-${_selectedMonth!.toString().padLeft(2, '0')}-${_selectedDay!.toString().padLeft(2, '0')}';
+    }
+  }
+
+  Future<void> signSheet () async {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -260,7 +330,7 @@ class _LoginScreenState extends State<LoginScreen> {
               height: MediaQuery
                   .of(context)
                   .size
-                  .height * 0.6,
+                  .height * 0.65,
               padding: const EdgeInsets.symmetric(
                   horizontal: 20.0, vertical: 40.0),
               child: Form(
@@ -279,26 +349,146 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _signidctrl,
                       decoration: const InputDecoration(
                         hintText: '아이디 입력',
-                        border: OutlineInputBorder(),
+                        border: UnderlineInputBorder(),
                       ),
                     ),
-                    const SizedBox(height: 10.0),
                     TextFormField(
                       controller: _signpwctrl,
                       decoration: const InputDecoration(
                         hintText: '비밀번호 입력',
-                        border: OutlineInputBorder(),
+                        border: UnderlineInputBorder(),
                       ),
                       obscureText: true,
                     ),
-                    const SizedBox(height: 10.0),
                     TextFormField(
                       controller: _signpwctrl2,
                       decoration: const InputDecoration(
                         hintText: '비밀번호 확인',
-                        border: OutlineInputBorder(),
+                        border: UnderlineInputBorder(),
                       ),
                       obscureText: true,
+                    ),
+                    const SizedBox(height: 20.0),
+                    const Text('생년월일'),
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: 70,
+                          height: 50,
+                          child: Expanded(
+                            child: DropdownButtonFormField<int>(
+                              decoration: const InputDecoration(
+                                border: UnderlineInputBorder(),
+                              ),
+                              menuMaxHeight: 250,
+                              value: _selectedYear,
+                              items: List.generate(
+                                100,
+                                    (index) => DropdownMenuItem<int>(
+                                  value: DateTime.now().year - index,
+                                  child: Text(
+                                    '${DateTime.now().year - index}',
+                                  ),
+                                ),
+                              ),
+                              onChanged: _updateSelectedYear,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8.0),
+
+                        SizedBox(
+                          width: 70,
+                          height: 50,
+                          child: Expanded(
+                            child: DropdownButtonFormField<int>(
+                              decoration: const InputDecoration(
+                                border: UnderlineInputBorder(),
+                              ),
+                              menuMaxHeight: 250,
+                              value: _selectedMonth,
+                              items: List.generate(
+                                12,
+                                    (index) => DropdownMenuItem<int>(
+                                  value: index + 1,
+                                  child: Text(
+                                    '${index + 1}월',
+                                  ),
+                                ),
+                              ),
+                              onChanged: _updateSelectedMonth,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8.0),
+
+                        SizedBox(
+                          width: 70,
+                          height: 50,
+                          child: Expanded(
+                            child: DropdownButtonFormField<int>(
+                              decoration: const InputDecoration(
+                                border: UnderlineInputBorder(),
+                              ),
+                              menuMaxHeight: 250,
+                              value: _selectedDay,
+                              items: List.generate(
+                                31,
+                                    (index) => DropdownMenuItem<int>(
+                                  value: index + 1,
+                                  child: Text(
+                                    '${index + 1}일',
+                                  ),
+                                ),
+                              ),
+                              onChanged: _updateSelectedDay,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 50.0),
+                        SizedBox(
+                          width: 70,
+                          height: 50,
+                          child: Expanded(
+                            child: DropdownButtonFormField<String>(
+                              decoration: const InputDecoration(
+                                border: UnderlineInputBorder(),
+                              ),
+                              value: _selectedGender,
+                              items: _genders.map((gender) {
+                                return DropdownMenuItem<String>(
+                                  value: gender,
+                                  child: Row(
+                                    children: [
+                                      gender == '남'
+                                          ? const Icon(Icons.man, color: Colors.blue)
+                                          : const Icon(Icons.woman, color: Colors.red),
+                                      Text(gender)
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: _updateSelectedGender
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10.0),
+                    TextFormField(
+                      controller: _signnicknamectrl,
+                      decoration: const InputDecoration(
+                          border: UnderlineInputBorder(),
+                          hintText: '이름'
+                      ),
+                    ),
+                    TextFormField(
+                      controller: _signphonectrl,
+                      keyboardType: TextInputType.phone,
+                      decoration: const InputDecoration(
+                        hintText: '전화번호 입력',
+                        border: UnderlineInputBorder(),
+                      ),
                     ),
                     const SizedBox(height: 16.0),
                     ElevatedButton(
@@ -324,6 +514,7 @@ class _LoginScreenState extends State<LoginScreen> {
       },
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
