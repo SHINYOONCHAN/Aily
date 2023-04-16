@@ -13,8 +13,8 @@ import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import '../widgets/Navigator.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:Aily/class/User.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -24,19 +24,16 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  late TextEditingController _idController;
-  late TextEditingController _passwordController;
+  late TextEditingController _idctrl;
+  late TextEditingController _passwordctrl;
 
-  late TextEditingController _signidController;
-  late TextEditingController _signpwController;
-  late TextEditingController _signpwController2;
+  late TextEditingController _signidctrl;
+  late TextEditingController _signpwctrl;
+  late TextEditingController _signpwctrl2;
+  late TextEditingController _signphonectrl;
 
-  late MySqlConnection conn;
   Color myColor = const Color(0xFFF8B195);
   late Uint8List imgData;
-  Uint8List? _downimageData;
-  bool _isUploading = false;
-  bool _isDownloading = false;
   final storage = const FlutterSecureStorage();
   late String image;
   late File? profile;
@@ -44,48 +41,49 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    _idController = TextEditingController();
-    _passwordController = TextEditingController();
+    _idctrl = TextEditingController();
+    _passwordctrl = TextEditingController();
 
-    _signidController = TextEditingController();
-    _signpwController = TextEditingController();
-    _signpwController2 = TextEditingController();
+    _signidctrl = TextEditingController();
+    _signpwctrl = TextEditingController();
+    _signpwctrl2 = TextEditingController();
+    _signphonectrl = TextEditingController();
+    //tryAutoLogin();
   }
 
   @override
   void dispose() {
-    _idController.dispose();
-    _passwordController.dispose();
+    _idctrl.dispose();
+    _passwordctrl.dispose();
+    _signidctrl.dispose();
+    _signpwctrl.dispose();
+    _signpwctrl2.dispose();
 
-    _signidController.dispose();
-    _signpwController.dispose();
-    _signpwController2.dispose();
-
-    conn.close();
     super.dispose();
   }
 
   Future<void> downloadImageFromServer(String id) async {
     try {
-      //서버에서 받은 이미지 url을 File타입에 맞게 가공
       final directory = await getApplicationDocumentsDirectory();
       final imagePath = '${directory.path}/profile.png';
       final profileFile = File(imagePath);
 
       try {
         final response = await http.get(Uri.parse(image));
-        await profileFile.writeAsBytes(response.bodyBytes);
+
+        if (await profileFile.exists()) {
+          await profileFile.delete();
+        }
+        await profileFile.writeAsBytes(response.bodyBytes, mode: FileMode.write);
         setState(() {
           profile = profileFile;
         });
+        final UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
+        userProvider.updateUsername(id);
+        userProvider.updateProfile(profile);
       } catch (e) {
         //
       }
-      //유저프로필에 저장
-      final UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
-      userProvider.updateUsername(id);
-      userProvider.updateProfile(profile);
-
       //현재 페이지를 제거 후 페이지 이동
       Navigator.pushAndRemoveUntil(
         context,
@@ -93,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
             (route) => false,
       );
     } catch (e) {
-      //다운로드 실패
+      //
     }
   }
 
@@ -106,11 +104,11 @@ class _LoginScreenState extends State<LoginScreen> {
     final id = await storage.read(key: 'id');
     final pw = await storage.read(key: 'pw');
     try {
-      final result = await conn.query(
-          'SELECT * FROM sign WHERE username = ? AND password = ?',
-          [id, pw]);
-
-      if (result.isNotEmpty) {
+      http.Response response = await loginUser(id!, pw!);
+      if (response.statusCode == 200){
+        //로그인 성공
+        var jsonResponse = jsonDecode(response.body);
+        image = jsonResponse[0]['image'];
         if (id == 'admin'){
           Navigator.pushAndRemoveUntil(
             context,
@@ -119,31 +117,31 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         }else{
           showLoadingDialog(context);
-          downloadImageFromServer(id!);
+          downloadImageFromServer(id);
         }
       }
     } catch (e) {
-      showMsg(context, "로그인", "오류가 발생했습니다.");
+      showMsg(context, "로그인", "아이디 또는 비밀번호가 올바르지 않습니다.$e");
     }
   }
 
   Future<http.Response> loginUser(String id, String password) async {
     final response = await http.post(
-      Uri.parse('http://211.201.93.173:8081/api/login'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        'id': id,
-        'password': password,
-      })
+        Uri.parse('http://211.201.93.173:8081/api/login'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'id': id,
+          'password': password,
+        })
     );
     return response;
   }
 
   Future<void> login() async {
-    final String id = _idController.text.trim();
-    final String pw = _passwordController.text.trim();
+    final String id = _idctrl.text.trim();
+    final String pw = _passwordctrl.text.trim();
 
     var bytes = utf8.encode(pw); // 문자열을 바이트 배열로 변환
     var md5Result = md5.convert(bytes); // MD5 해시 값 생성
@@ -176,59 +174,35 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  // Future<void> login() async {
-  //   final String id = _idController.text.trim();
-  //   final String pw = _passwordController.text.trim();
-  //
-  //   var bytes = utf8.encode(pw); // 문자열을 바이트 배열로 변환
-  //   var md5Result = md5.convert(bytes); // MD5 해시 값 생성
-  //   String md5Password = md5Result.toString();
-  //   // 로그인 처리 로직 구현
-  //   if (id.isEmpty || pw.isEmpty) {
-  //     showMsg(context, "로그인", "아이디 또는 비밀번호를 입력해주세요.");
-  //   } else {
-  //     try {
-  //       final result = await conn.query(
-  //           'SELECT * FROM sign WHERE username = ? AND password = ?',
-  //           [id, md5Password]);
-  //       print('무슨 문자가 나올까 : $result');
-  //       if (result.isNotEmpty && result.first["username"] == id) {
-  //         saveLoginInfo(id, md5Password);
-  //         if (id == 'admin'){
-  //           Navigator.pushAndRemoveUntil(
-  //             context,
-  //             MaterialPageRoute(builder: (context) => const ManagerScreen()),
-  //                 (route) => false,
-  //           );
-  //         }else{
-  //           showLoadingDialog(context);
-  //           downloadImageFromServer(id);
-  //         }
-  //       } else {
-  //         showMsg(context, "로그인", "아이디 또는 비밀번호가 올바르지 않습니다.");
-  //       }
-  //     } catch (e) {
-  //       showMsg(context, "로그인", "오류가 발생했습니다.");
-  //     }
-  //   }
-  // }
+  Future<http.Response> signUser(String id, String password) async {
+    final Map<String, dynamic> data = {
+      "phonenumber": 1033567285,
+      "id": id,
+      "password": password,
+      "birth": "2000-07-07",
+      "nickname": "신윤찬2",
+      "profile": "http://url"
+    };
+
+    final response = await http.post(
+      Uri.parse('http://211.201.93.173:8080/api/sign'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(data),
+    );
+    return response;
+  }
 
   Future<void> signup(UserProvider userProvider) async {
-    final String id = _signidController.text.trim();
-    final String pw = _signpwController.text.trim();
-    final String confirmPw = _signpwController2.text.trim();
+    final String id = _signidctrl.text.trim();
+    final String pw = _signpwctrl.text.trim();
+    final String confirmPw = _signpwctrl2.text.trim();
     var bytes = utf8.encode(pw); // 문자열을 바이트 배열로 변환
     var md5Result = md5.convert(bytes); // MD5 해시 값 생성
     String md5Password = md5Result.toString();
 
-    try {
-      String username = userProvider.user.username;
-      //imgData = await User.withDefaultProfile();
-      final User user = User.withDefaultProfile(username: username);
-      userProvider.updateUser(user);
-    } catch (e) {
-      throw Exception("파일이 존재하지 않습니다.");
-    }
+    String username = userProvider.user.username;
+    final User user = User.withDefaultProfile(username: username);
+    userProvider.updateUser(user);
 
     // 회원가입 처리 로직 구현
     if (id.contains(' ') || pw.contains(' ')) {
@@ -237,30 +211,30 @@ class _LoginScreenState extends State<LoginScreen> {
     else if (id.isEmpty || pw.isEmpty || confirmPw.isEmpty) {
       showMsg(context, "회원가입", "아이디 또는 비밀번호를 입력해주세요.");
     } else {
-      try {
-        if (pw == confirmPw) {
-          final result = await conn.query('INSERT INTO sign (username, password, image) VALUES (?, ?, ?)', [id, md5Password, imgData]);
-          if (result.affectedRows == 1) {
-            _dismissModalBottomSheet();
-            showMsg(context, "회원가입", "회원가입 완료");
+      if (pw == confirmPw) {
+        try{
+          http.Response response = await signUser(id, md5Password);
+          final responsebody = json.decode(utf8.decode(response.bodyBytes));
+          final error = responsebody['error'];
+          if (error == '중복된 닉네임입니다.'){
+            showMsg(context, "회원가입", "중복된 닉네임입니다.");
+          }else if (error == '중복된 전화번호입니다.'){
+            showMsg(context, "회원가입", "중복된 전화번호입니다.");
           }
-        } else {
-          showMsg(context, "회원가입", "비밀번호가 일치하지 않습니다.");
+        } catch (e) {
+          _dismissModalBottomSheet();
+          showMsg(context, "회원가입", "회원가입 완료");
         }
-      } catch (e) {
-        if (e is MySqlException && e.errorNumber == 1062) {
-          showMsg(context, "회원가입", "중복된 아이디입니다.");
-        } else {
-          showMsg(context, "회원가입", "오류가 발생했습니다.");
-        }
+      } else {
+        showMsg(context, "회원가입", "비밀번호가 일치하지 않습니다.");
       }
     }
   }
 
   void _dismissModalBottomSheet() {
-    _signidController.clear();
-    _signpwController.clear();
-    _signpwController2.clear();
+    _signidctrl.clear();
+    _signpwctrl.clear();
+    _signpwctrl2.clear();
     Navigator.of(context).pop();
   }
 
@@ -271,8 +245,6 @@ class _LoginScreenState extends State<LoginScreen> {
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(40),
           topRight: Radius.circular(40),
-          bottomLeft: Radius.circular(40),
-          bottomRight: Radius.circular(40),
         ),
       ),
       isScrollControlled: true,
@@ -304,7 +276,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 10.0),
                     TextFormField(
-                      controller: _signidController,
+                      controller: _signidctrl,
                       decoration: const InputDecoration(
                         hintText: '아이디 입력',
                         border: OutlineInputBorder(),
@@ -312,7 +284,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 10.0),
                     TextFormField(
-                      controller: _signpwController,
+                      controller: _signpwctrl,
                       decoration: const InputDecoration(
                         hintText: '비밀번호 입력',
                         border: OutlineInputBorder(),
@@ -321,7 +293,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 10.0),
                     TextFormField(
-                      controller: _signpwController2,
+                      controller: _signpwctrl2,
                       decoration: const InputDecoration(
                         hintText: '비밀번호 확인',
                         border: OutlineInputBorder(),
@@ -331,7 +303,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 16.0),
                     ElevatedButton(
                       onPressed: () async {
-                        final id = _signidController.text.trim();
+                        final id = _signidctrl.text.trim();
                         UserProvider userProvider = UserProvider();
                         User newUser = User.withDefaultProfile(username: id);
                         userProvider.updateUser(newUser);
@@ -401,7 +373,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 32.0),
                       TextField(
-                        controller: _idController,
+                        controller: _idctrl,
                         decoration: const InputDecoration(
                           hintText: '아이디 입력',
                           border: OutlineInputBorder(),
@@ -409,7 +381,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 8.0),
                       TextField(
-                        controller: _passwordController,
+                        controller: _passwordctrl,
                         decoration: const InputDecoration(
                           hintText: '비밀번호 입력',
                           border: OutlineInputBorder(),
