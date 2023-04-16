@@ -9,7 +9,7 @@ class User {
   factory User.withDefaultProfile({required String username}) {
     return User(
       username: username,
-      profile: null,
+      profile: null
     );
   }
 }
