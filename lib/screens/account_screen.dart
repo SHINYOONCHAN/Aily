@@ -6,11 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mysql1/mysql1.dart';
-import 'package:Aily/proves/UserProvider.dart';
+//import 'package:Aily/proves/UserProvider.dart';
+import 'package:Aily/class/testUser.dart';
+import 'package:Aily/proves/testUserProvider.dart';
 import 'package:provider/provider.dart';
 import 'package:Aily/board/faq_screen.dart';
 import 'package:Aily/board/notice_screen.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+
 
 class Account_screen extends StatefulWidget {
   const Account_screen({Key? key}) : super(key: key);
@@ -21,18 +24,18 @@ class Account_screen extends StatefulWidget {
 
 class _Account_screenState extends State<Account_screen> {
   String _qrCode = '';
-  late MySqlConnection conn;
-  File? _image;
-  late String? username;
-  late File? profile;
+  late File? _image;
+  String? username;
+  String? profile;
   final storage = const FlutterSecureStorage();
-
+  bool _uploading = false;
 
   Future<void> _getUser() async {
     final UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
-    username = userProvider.user.username;
-    profile = userProvider.user.profile;
-    setState(() {});
+    setState(() {
+      username = userProvider.user.nickname;
+      profile = userProvider.user.image;
+    });
   }
 
   @override
@@ -43,22 +46,22 @@ class _Account_screenState extends State<Account_screen> {
 
   @override
   void dispose() {
-    conn.close();
     super.dispose();
   }
 
-  Future<void> logout() async {
+  void logout(BuildContext context) async {
     await storage.delete(key: 'id');
     await storage.delete(key: 'pw');
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (context) => const LoginScreen(),
       ),
     );
+
     showMsg(context, '로그아웃', '로그아웃 되었습니다.');
   }
-
 
   Future<void> _scanQRCode() async {
     String qrCode = await FlutterBarcodeScanner.scanBarcode(
@@ -73,36 +76,43 @@ class _Account_screenState extends State<Account_screen> {
     });
   }
 
-  void _profileUpdate() async {
-    final UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
-    userProvider.updateProfile(_image);
-    _getUser();
+  void _profileUpdate(BuildContext context) async {
+    final cacheManager = DefaultCacheManager();
+    await cacheManager.removeFile(profile!);
+    setState(() {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      profile = userProvider.user.image;
+    });
   }
 
-  Future<void> _pickImage(ImageSource source) async {
+  Future<void> _pickImage(BuildContext context, ImageSource source) async {
     final pickedFile = await ImagePicker().pickImage(source: source);
     if (pickedFile != null) {
       setState(() {
         _image = File(pickedFile.path);
-        _profileUpdate();
       });
       await _uploadImage(_image!);
+      _profileUpdate(context);
     }
   }
 
   Future<void> _uploadImage(File file) async {
     try {
+      setState(() {
+        _uploading = true;
+      });
       final formData = FormData.fromMap({
         'username': username,
         'file': await MultipartFile.fromFile(file.path, filename: 'image.png'),
       });
-      final response = await Dio().post('http://211.201.93.173:8080/upload', data: formData);
+      await Dio().post('http://211.201.93.173:8083/api/image', data: formData);
 
-      if (response.statusCode == 200) {
-        //
-      }
     } catch (e) {
       //
+    } finally {
+      setState(() {
+        _uploading = false;
+      });
     }
   }
 
@@ -112,10 +122,10 @@ class _Account_screenState extends State<Account_screen> {
 
     return Scaffold(
       backgroundColor:backColor,
-      body: AccountWidget(username!, context),
+      body: AccountWidget(context),
     );
   }
-  Widget AccountWidget(String username, BuildContext context) {
+  Widget AccountWidget(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
       child: Column(
@@ -132,67 +142,87 @@ class _Account_screenState extends State<Account_screen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      height: 250,
-                      child: Stack(
-                        children: [
-                          const Positioned(
-                            top: 25,
-                            left: 20,
-                            child: Text(
-                              '프로필',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            top: 30,
-                            right: 18,
-                            child: GestureDetector(
-                              onTap: () {
-                                //showMsg(context, '설정', '설정');
-                              },
-                              child: const Icon(
-                                Icons.settings,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            top: 70,
-                            left: 10,
-                            right: 0,
-                            child: ListTile(
-                              horizontalTitleGap: 5,
-                              leading: CircleAvatar(
-                                radius: 30,
-                                backgroundColor: Colors.white,
-                                child: CircleAvatar(
-                                  backgroundColor: Colors.transparent,
-                                  child: ClipOval(
-                                    child: profile == null
-                                        ? Image.asset('assets/images/default.png', width: 80, height: 80)
-                                        : Image.file(
-                                      profile!,
-                                      width: 80,
-                                      height: 80,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
+                    Consumer<UserProvider>(
+                      builder: (context, UserProvider, _) => Container(
+                        height: 250,
+                        child: Stack(
+                          children: [
+                            const Positioned(
+                              top: 25,
+                              left: 20,
+                              child: Text(
+                                '프로필',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              title: Text(username, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                              trailing: const Icon(Icons.arrow_forward_ios, color: Colors.black),
-                              onTap: () {
-                                _pickImage(ImageSource.gallery);
-                                //showMsg(context, '프로필', '프로필');
-                              },
                             ),
-                          ),
-                        ],
+                            Positioned(
+                              top: 30,
+                              right: 18,
+                              child: GestureDetector(
+                                onTap: () {
+                                  //showMsg(context, '설정', '설정');
+                                },
+                                child: const Icon(
+                                  Icons.settings,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              top: 70,
+                              left: 10,
+                              right: 0,
+                              child: ListTile(
+                                horizontalTitleGap: 5,
+                                leading: CircleAvatar(
+                                  radius: 30,
+                                  backgroundColor: Colors.white,
+                                  child: FutureBuilder<File>(
+                                    future: DefaultCacheManager().getSingleFile(profile!),
+                                    builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
+                                      if (snapshot.hasData && snapshot.data != null) {
+                                        return CircleAvatar(
+                                          backgroundColor: Colors.transparent,
+                                          child: ClipOval(
+                                            child: _uploading
+                                                ? const CircularProgressIndicator()
+                                                : Image.file(
+                                              snapshot.data!,
+                                              width: 80,
+                                              height: 80,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                        );
+                                      } else {
+                                        return const CircularProgressIndicator();
+                                      }
+                                    },
+                                  ),
+                                ),
+                                title: Text(
+                                    username!,
+                                    style: const TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold
+                                    )
+                                ),
+                                trailing: const Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: Colors.black
+                                ),
+                                onTap: () {
+                                  _pickImage(context, ImageSource.gallery);
+                                  //showMsg(context, '프로필', '프로필');
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
 
@@ -238,7 +268,7 @@ class _Account_screenState extends State<Account_screen> {
                       title: const Text('로그아웃', style: TextStyle(fontWeight: FontWeight.bold)),
                       trailing: const Icon(Icons.arrow_forward_ios, color: Colors.black),
                       onTap: () {
-                        logout();
+                        logout(context);
                       },
                     ),
                   ],

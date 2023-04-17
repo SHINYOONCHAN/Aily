@@ -9,7 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:Aily/class/User.dart';
-import 'package:Aily/proves/UserProvider.dart';
+//import 'package:Aily/proves/UserProvider.dart';
+import 'package:Aily/proves/testUserProvider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import '../widgets/Navigator.dart';
@@ -37,7 +38,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Color myColor = const Color(0xFFF8B195);
   late Uint8List imgData;
   final storage = const FlutterSecureStorage();
-  late String image;
+  late int point, phonenumber;
+  late String nickname, image;
   late File? profile;
   late DateTime _selectedDate;
   String? _selectedGender;
@@ -75,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> downloadImageFromServer(String id) async {
+  Future<void> downloadImageFromServer(String nickname) async {
     try {
       final directory = await getApplicationDocumentsDirectory();
       final imagePath = '${directory.path}/profile.png';
@@ -92,16 +94,17 @@ class _LoginScreenState extends State<LoginScreen> {
           profile = profileFile;
         });
         final UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
-        userProvider.updateUsername(id);
-        userProvider.updateProfile(profile);
+        userProvider.updateNickname(nickname);
+        userProvider.updatePoint(0);
+        userProvider.updateImage(image);
+        userProvider.updatePhoneNumber(phonenumber);
       } catch (e) {
         //
       }
       //현재 페이지를 제거 후 페이지 이동
-      Navigator.pushAndRemoveUntil(
+      Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const NavigatorScreen()),
-            (route) => false,
+        MaterialPageRoute(builder: (context) => NavigatorScreen()),
       );
     } catch (e) {
       //
@@ -168,7 +171,10 @@ class _LoginScreenState extends State<LoginScreen> {
         if (response.statusCode == 200){
           //로그인 성공
           var jsonResponse = jsonDecode(response.body);
-          image = jsonResponse[0]['image'];
+          nickname = jsonResponse[0]['nickname'];
+          point = jsonResponse[0]['point'];
+          image = jsonResponse[0]['profile'];
+          phonenumber = jsonResponse[0]['User_phonenumber'];
           saveLoginInfo(id, md5Password);
           if (id == 'admin'){
             Navigator.pushAndRemoveUntil(
@@ -178,7 +184,7 @@ class _LoginScreenState extends State<LoginScreen> {
             );
           }else{
             showLoadingDialog(context);
-            downloadImageFromServer(id);
+            downloadImageFromServer(nickname);
           }
         }
       } catch (e) {
@@ -216,9 +222,9 @@ class _LoginScreenState extends State<LoginScreen> {
     var md5Result = md5.convert(bytes); // MD5 해시 값 생성
     String md5Password = md5Result.toString();
 
-    String username = userProvider.user.username;
-    final User user = User.withDefaultProfile(username: username);
-    userProvider.updateUser(user);
+    // String username = userProvider.user.username;
+    // final User user = User.withDefaultProfile(username: username);
+    // userProvider.updateUser(user);
 
     // 회원가입 처리 로직 구현
     if (id.contains(' ') || pw.contains(' ')) {
@@ -496,8 +502,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: () async {
                         final id = _signidctrl.text.trim();
                         UserProvider userProvider = UserProvider();
-                        User newUser = User.withDefaultProfile(username: id);
-                        userProvider.updateUser(newUser);
+                        // User newUser = User.withDefaultProfile(username: id);
+                        // userProvider.updateUser(newUser);
+
                         await signup(userProvider);
                       },
                       style: ElevatedButton.styleFrom(

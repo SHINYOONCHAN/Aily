@@ -7,7 +7,7 @@ import 'package:Aily/screens/garbage_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:provider/provider.dart';
-import '../proves/UserProvider.dart';
+import 'package:Aily/proves/testUserProvider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -25,26 +25,14 @@ class _HomeScreenState extends State<HomeScreen> {
   List<String> SelectedTitles = [];
 
   late String? username;
+  late int? userpoint;
   late Uint8List? profile;
   Color myColor = const Color(0xFFF8B195);
 
   @override
   void initState() {
-    _getUser();
-    //_getListTitle();
     super.initState();
-    MySqlConnection.connect(
-      ConnectionSettings(
-        host: '211.201.93.173',
-        //'175.113.68.69',
-        port: 3306,
-        user: 'root',
-        password: '488799',
-        db: 'user_db',
-      ),
-    ).then((connection) {
-      conn = connection;
-    });
+    _getUser();
   }
 
   @override
@@ -55,8 +43,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _getUser() {
     final UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
-    username = userProvider.user.username;
-    setState((){});
+    username = userProvider.user.nickname;
+    userpoint = userProvider.user.point;
+    setState(() {
+
+    });
   }
 
   void _getListTitle() {
@@ -234,8 +225,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           const Padding(padding: EdgeInsets.symmetric(vertical: 10)),
-                          const Text(
-                            '0p',
+                          Text(
+                            '$userpoint',
                             style: TextStyle(
                               fontSize: 30,
                               fontWeight: FontWeight.bold,

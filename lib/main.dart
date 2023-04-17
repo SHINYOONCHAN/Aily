@@ -2,7 +2,7 @@ import 'package:Aily/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:provider/provider.dart';
-import 'proves/UserProvider.dart';
+import 'proves/testUserProvider.dart';
 import 'proves/mapTitleProvider.dart';
 
 Future<void> main() async {
