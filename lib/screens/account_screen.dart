@@ -26,9 +26,8 @@ class _Account_screenState extends State<Account_screen> {
   String _qrCode = '';
   late File? _image;
   String? username;
-  String? profile;
+  File? profile;
   final storage = const FlutterSecureStorage();
-  bool _uploading = false;
 
   Future<void> _getUser() async {
     final UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
@@ -52,7 +51,6 @@ class _Account_screenState extends State<Account_screen> {
   void logout(BuildContext context) async {
     await storage.delete(key: 'id');
     await storage.delete(key: 'pw');
-
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -77,12 +75,11 @@ class _Account_screenState extends State<Account_screen> {
   }
 
   void _profileUpdate(BuildContext context) async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    userProvider.updateImage(_image!);
+    profile = userProvider.user.image;
     final cacheManager = DefaultCacheManager();
-    await cacheManager.removeFile(profile!);
-    setState(() {
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-      profile = userProvider.user.image;
-    });
+    await cacheManager.removeFile(profile!.path);
   }
 
   Future<void> _pickImage(BuildContext context, ImageSource source) async {
@@ -91,28 +88,24 @@ class _Account_screenState extends State<Account_screen> {
       setState(() {
         _image = File(pickedFile.path);
       });
-      await _uploadImage(_image!);
       _profileUpdate(context);
+      await _uploadImage(_image!);
     }
   }
 
   Future<void> _uploadImage(File file) async {
     try {
-      setState(() {
-        _uploading = true;
-      });
       final formData = FormData.fromMap({
         'username': username,
         'file': await MultipartFile.fromFile(file.path, filename: 'image.png'),
       });
-      await Dio().post('http://211.201.93.173:8083/api/image', data: formData);
+      final response = await Dio().post('http://211.201.93.173:8083/api/image', data: formData);
 
+      if (response.statusCode == 200) {
+        //
+      }
     } catch (e) {
       //
-    } finally {
-      setState(() {
-        _uploading = false;
-      });
     }
   }
 
@@ -143,11 +136,11 @@ class _Account_screenState extends State<Account_screen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Consumer<UserProvider>(
-                      builder: (context, UserProvider, _) => Container(
+                      builder: (context, UserProvider, _) => SizedBox(
                         height: 250,
                         child: Stack(
                           children: [
-                            const Positioned(
+                             const Positioned(
                               top: 25,
                               left: 20,
                               child: Text(
@@ -181,27 +174,13 @@ class _Account_screenState extends State<Account_screen> {
                                 leading: CircleAvatar(
                                   radius: 30,
                                   backgroundColor: Colors.white,
-                                  child: FutureBuilder<File>(
-                                    future: DefaultCacheManager().getSingleFile(profile!),
-                                    builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
-                                      if (snapshot.hasData && snapshot.data != null) {
-                                        return CircleAvatar(
-                                          backgroundColor: Colors.transparent,
-                                          child: ClipOval(
-                                            child: _uploading
-                                                ? const CircularProgressIndicator()
-                                                : Image.file(
-                                              snapshot.data!,
-                                              width: 80,
-                                              height: 80,
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                        );
-                                      } else {
-                                        return const CircularProgressIndicator();
-                                      }
-                                    },
+                                  child: ClipOval(
+                                    child: Image.file(
+                                      profile!,
+                                      width: 80,
+                                      height: 80,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                 ),
                                 title: Text(
