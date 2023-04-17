@@ -79,36 +79,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> downloadImageFromServer(String nickname) async {
     try {
-      final directory = await getApplicationDocumentsDirectory();
-      final imagePath = '${directory.path}/profile.png';
-      final profileFile = File(imagePath);
-
-      try {
-        final response = await http.get(Uri.parse(image));
-
-        if (await profileFile.exists()) {
-          await profileFile.delete();
-        }
-        await profileFile.writeAsBytes(response.bodyBytes, mode: FileMode.write);
-        setState(() {
-          profile = profileFile;
-        });
-        final UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
-        userProvider.updateNickname(nickname);
-        userProvider.updatePoint(0);
-        userProvider.updateImage(image);
-        userProvider.updatePhoneNumber(phonenumber);
-      } catch (e) {
-        //
-      }
-      //현재 페이지를 제거 후 페이지 이동
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => NavigatorScreen()),
-      );
+      final UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
+      userProvider.updateNickname(nickname);
+      userProvider.updatePoint(0);
+      userProvider.updateImage(image);
+      userProvider.updatePhoneNumber(phonenumber);
     } catch (e) {
       //
     }
+    //현재 페이지를 제거 후 페이지 이동
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const NavigatorScreen()),
+    );
   }
 
   Future<void> saveLoginInfo(String id, String pw) async {
