@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:Aily/screens/account_screen.dart';
 import 'package:Aily/screens/map_screen.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +16,6 @@ class NavigatorScreen extends StatefulWidget {
 
 class _NavigatorScreenState extends State<NavigatorScreen> with TickerProviderStateMixin{
   Color myColor = const Color(0xFFF8B195);
-  String _qrCode = '';
   late String? username;
   late Uint8List? profile;
   late List<Widget> _children;
@@ -41,19 +39,6 @@ class _NavigatorScreenState extends State<NavigatorScreen> with TickerProviderSt
     super.dispose();
   }
 
-  // Future<void> _scanQRCode() async {
-  //   String qrCode = await FlutterBarcodeScanner.scanBarcode(
-  //     '#ff6666',
-  //     '취소',
-  //     true,
-  //     ScanMode.QR,
-  //   );
-  //
-  //   setState(() {
-  //     _qrCode = qrCode;
-  //   });
-  // }
-
   @override
   Widget build(BuildContext context) {
     _children = [
@@ -67,7 +52,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> with TickerProviderSt
         children: [
           IconButton(
             icon: SvgPicture.asset(
-              'assets/images/$icon.svg',
+              'assets/images/icons/$icon.svg',
               color: _currentIndex == index ? myColor : Colors.grey,
             ),
             onPressed: () {
@@ -91,7 +76,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> with TickerProviderSt
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         child: SizedBox(
-          height: MediaQuery.of(context).size.height * 0.08,
+          height: MediaQuery.of(context).size.height * 0.07,
           child: Row(
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

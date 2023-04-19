@@ -104,11 +104,10 @@ flutter:
     - assets/images/default.png
     - assets/images/icons/wallet.png
     - assets/images/icons/alarm.png
-    - assets/images/home_icon.svg
-    - assets/images/map_icon.svg
-    - assets/images/profile_tab_icon.svg
-    - assets/images/story_icon.svg
-    - assets/images/cat.svg
+    - assets/images/icons/home_icon.svg
+    - assets/images/icons/map_icon.svg
+    - assets/images/icons/profile_tab_icon.svg
+    - assets/images/icons/story_icon.svg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
