@@ -19,13 +19,20 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
   Set<Marker> markers = {};
   GoogleMapController? controller;
   Color myColor = const Color(0xFFF8B195);
-
+  late TextEditingController _searchctrl;
+  late String searchStr = '';
   @override
   void initState() {
     super.initState();
+    _searchctrl = TextEditingController();
     initMap();
   }
 
+  @override
+  void dispose(){
+    _searchctrl.dispose();
+    super.dispose();
+  }
   void initMap() {
     final List<LatLng> locations = [
       const LatLng(37.500936916629, 126.86674390514),
@@ -76,6 +83,22 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
     setState(() {});
   }
 
+  void _search() {
+    final String str = _searchctrl.text.trim();
+    if (str.contains('Aily1') || str.contains('동양')){
+      searchStr = '동양미래대학교';
+    } else if (str.contains('Aily2')){
+      searchStr = '코엑스';
+    } else if (str.isEmpty){
+      showMsg(context, '검색', '검색어를 입력해주세요.');
+      searchStr = '';
+    }
+    else {
+      showMsg(context, '검색', '찾을 수 없습니다.');
+    }
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -85,6 +108,16 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
       backgroundColor: backColor,
       body: MapWidget(context),
     );
+  }
+
+  Widget _buildListTiles() {
+    List<Widget> listTiles = [];
+    if (searchStr.isNotEmpty){
+      listTiles.add(_ListTile(context, searchStr));
+    }else{
+      return const Text('현 위치에서 가까운 Aily의 위치가 나타나요.', style: TextStyle(fontSize: 16));
+    }
+    return Column(children: listTiles);
   }
 
   void BottomSheet () {
@@ -136,93 +169,95 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
   }
 
   Widget MapWidget(BuildContext context) {
-    return Column(
-      children: [
-        Stack(
-          children: [
-            SizedBox(
-              height: MediaQuery.of(context).size.height / 2.4,
-              child: GoogleMap(
-                initialCameraPosition: const CameraPosition(
-                  target: LatLng(37.500936916629, 126.86674390514),
-                  zoom: 18,
-                ),
-                markers: markers,
-                onMapCreated: ((mapController) {
-                  setState(() {
-                    controller = mapController;
-                  });
-                }),
-              ),
-            ),
-          ],
-        ),
-        Container(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height / 1.983,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(30.0),
-              topRight: Radius.circular(30.0),
-            ),
-          ),
-          child: Column(
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Stack(
             children: [
-              const SizedBox(height: 10),
-              Column(
-                children: [
-                  TextField(
-                    decoration: InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                      hintText: '주소, 지역 검색',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: myColor),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(color: Colors.black),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      suffixIcon: IconButton(
-                        color: Colors.black,
-                        icon: const Icon(Icons.search),
-                        onPressed: (){
-                          showMsg(context, '테스트', 'Icon Button Click');
-                        },
-                      ),
-                    ),
-                    obscureText: false,
+              SizedBox(
+                height: MediaQuery.of(context).size.height / 2.4,
+                child: GoogleMap(
+                  initialCameraPosition: const CameraPosition(
+                    target: LatLng(37.500936916629, 126.86674390514),
+                    zoom: 18,
                   ),
-                  const SizedBox(height: 20),
-                  ListTile(
-                    title: Text('동양미래대학교1'),
-                    onTap: () {
-
-                    },
-                  ),
-                  ListTile(
-                    title: Text('동양미래대학교2'),
-                    onTap: () {
-
-                    },
-                  ),
-                  ListTile(
-                    title: Text('동양미래대학교3'),
-                    onTap: () {
-
-                    },
-                  ),
-                  // 이하 생략
-                ],
+                  markers: markers,
+                  onMapCreated: ((mapController) {
+                    setState(() {
+                      controller = mapController;
+                    });
+                  }),
+                ),
               ),
             ],
           ),
-        ),
-      ],
+          Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height / 1.983,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(30.0),
+                topRight: Radius.circular(30.0),
+              ),
+            ),
+            child: Column(
+              children: [
+                const SizedBox(height: 10),
+                Column(
+                  children: [
+                    SizedBox(
+                      width: 370,
+                      child: TextField(
+                        controller: _searchctrl,
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                          hintText: '주소, 지역 검색',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: myColor),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Colors.black),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          suffixIcon: IconButton(
+                            color: Colors.black,
+                            icon: const Icon(Icons.search),
+                            onPressed: (){
+                              _search();
+                            },
+                          ),
+                        ),
+                        obscureText: false,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Column(
+                      children: [
+                        _buildListTiles()
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
+}
+
+Widget _ListTile(BuildContext context, String title) {
+  return ListTile(
+    title: Text(title, style: TextStyle(fontSize: 18)),
+    subtitle: Text('캔 사용가능 | 플라스틱 사용불가', style: TextStyle(fontSize: 16)),
+    onTap: () {
+      showMsg(context, '까꿍', title);
+    },
+  );
 }

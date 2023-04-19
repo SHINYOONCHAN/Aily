@@ -3,6 +3,7 @@ import 'package:Aily/screens/login_screen.dart';
 import 'package:Aily/utils/ShowDialog.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:image_picker/image_picker.dart';
@@ -13,7 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:Aily/board/faq_screen.dart';
 import 'package:Aily/board/notice_screen.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-
+import '../proves/mapTitleProvider.dart';
 
 class Account_screen extends StatefulWidget {
   const Account_screen({Key? key}) : super(key: key);
@@ -57,7 +58,6 @@ class _Account_screenState extends State<Account_screen> {
         builder: (context) => const LoginScreen(),
       ),
     );
-
     showMsg(context, '로그아웃', '로그아웃 되었습니다.');
   }
 

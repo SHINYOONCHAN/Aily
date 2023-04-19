@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../screens/point_screen.dart';
 import '../screens/qr_Screen.dart';
 import '../screens/home_screen.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class NavigatorScreen extends StatefulWidget {
   const NavigatorScreen({Key? key}) : super(key: key);
@@ -61,6 +62,21 @@ class _NavigatorScreenState extends State<NavigatorScreen> with TickerProviderSt
       const MapScreen(),
       const Account_screen()
     ];
+    Widget _IconButton(String icon, int index) {
+      return Column(
+        children: [
+          IconButton(
+            icon: SvgPicture.asset(
+              'assets/images/$icon.svg',
+              color: _currentIndex == index ? myColor : Colors.grey,
+            ),
+            onPressed: () {
+              _onTap(index);
+            },
+          ),
+        ],
+      );
+    }
 
     return Scaffold(
       body: PageView(
@@ -72,64 +88,29 @@ class _NavigatorScreenState extends State<NavigatorScreen> with TickerProviderSt
           child: e,
         )).toList(),
       ),
-
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
-        notchMargin: 8.0,
-        color: Colors.white,
         child: SizedBox(
-          height: MediaQuery.of(context).size.height * 0.079,
+          height: MediaQuery.of(context).size.height * 0.08,
           child: Row(
+            mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              TextButton.icon(
-                icon: const Icon(Icons.home),
-                label: const Text('홈'),
-                style: TextButton.styleFrom(
-                  foregroundColor: _currentIndex == 0 ? myColor : Colors.grey,
-                ),
-                onPressed: () {
-                  _onTap(0);
-                },
-              ),
-              TextButton.icon(
-                icon: const Icon(Icons.control_point_duplicate),
-                label: const Text('포인트'),
-                style: TextButton.styleFrom(
-                  foregroundColor: _currentIndex == 1 ? myColor : Colors.grey,
-                ),
-                onPressed: () {
-                  _onTap(1);
-                },
-              ),
-              const SizedBox(width: 48.0),
-              TextButton.icon(
-                icon: const Icon(Icons.location_on),
-                label: const Text('지도'),
-                style: TextButton.styleFrom(
-                  foregroundColor: _currentIndex == 2 ? myColor : Colors.grey,
-                ),
-                onPressed: () {
-                  _onTap(2);
-                },
-              ),
-              TextButton.icon(
-                icon: const Icon(Icons.person),
-                label: const Text('내 정보'),
-                style: TextButton.styleFrom(
-                  foregroundColor: _currentIndex == 3 ? myColor : Colors.grey,
-                ),
-                onPressed: () {
-                  _onTap(3);
-                },
-              ),
+              const SizedBox(width: 20.0),
+              _IconButton('home_icon', 0),
+              const SizedBox(width: 10.0),
+              _IconButton('story_icon', 1),
+              const SizedBox(width: 100.0),
+              _IconButton('map_icon', 2),
+              const SizedBox(width: 10.0),
+              _IconButton('profile_tab_icon', 3),
+              const SizedBox(width: 20.0),
             ],
           ),
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        onPressed: (){
+        onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -138,10 +119,11 @@ class _NavigatorScreenState extends State<NavigatorScreen> with TickerProviderSt
           );
         },
         backgroundColor: myColor,
-        highlightElevation: 0,
-        splashColor: Colors.red,
-        child: Image.asset('assets/images/QR.png', width: 30, height: 30),
+        foregroundColor: Colors.white,
+        elevation: 5.0,
+        child: const Icon(Icons.qr_code, size: 40.0),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
@@ -161,3 +143,4 @@ class _NavigatorScreenState extends State<NavigatorScreen> with TickerProviderSt
     }
   }
 }
+

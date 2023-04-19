@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:provider/provider.dart';
+import '../proves/testUserProvider.dart';
 
 class QRScreen extends StatefulWidget {
   const QRScreen({Key? key}) : super(key: key);
@@ -10,6 +12,20 @@ class QRScreen extends StatefulWidget {
 
 class _QRScreenState extends State<QRScreen> {
   Color myColor = const Color(0xFFF8B195);
+  late int phonenumber;
+
+  @override
+  void initState() {
+    super.initState();
+    _getPhone();
+  }
+
+  Future<void> _getPhone() async {
+    final UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
+    setState(() {
+      phonenumber = userProvider.user.phonenumber;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +38,7 @@ class _QRScreenState extends State<QRScreen> {
       ),
       body: Center(
         child: QrImage(
-          data: "01033567286",
+          data: "$phonenumber",
           version: QrVersions.auto,
           size: qrSize,
         ),

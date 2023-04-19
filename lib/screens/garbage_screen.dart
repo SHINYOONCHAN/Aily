@@ -33,14 +33,15 @@ class _GarbageScreenState extends State<GarbageScreen> {
       }
     } catch (e) {}
     setState(() {
-      _normalAmount = responseBody['normal'];
-      _normalHeightPercent = HeightPercentage(_normalAmount);
-
-      _canAmount = responseBody['can'];
-      _canHeightPercent = HeightPercentage(_canAmount);
-
-      _plasticAmount = responseBody['plastic'];
-      _plasticHeightPercent = HeightPercentage(_plasticAmount);
+      List<dynamic> garbageList = responseBody['garbage'];
+      for (var garbage in garbageList) {
+        _normalAmount = garbage['no'];
+        _normalHeightPercent = HeightPercentage(_normalAmount);
+        _canAmount = garbage['ca'];
+        _canHeightPercent = HeightPercentage(_canAmount);
+        _plasticAmount = garbage['pl'];
+        _plasticHeightPercent = HeightPercentage(_plasticAmount);
+      }
     });
   }
 

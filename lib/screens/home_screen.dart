@@ -60,47 +60,6 @@ class _HomeScreenState extends State<HomeScreen> {
     print(SelectedTitles);
   }
 
-  Future<void> uploadImageToServer(File imageFile) async {
-    try {
-      final bytes = await imageFile.readAsBytes();
-      final imgData = bytes.toList();
-
-      final rows = await conn.query(
-          'SELECT username FROM sign WHERE username = ?', [username]);
-      if (rows.isNotEmpty) {
-        await conn.query(
-          'UPDATE sign SET image = ? WHERE username = ?',
-          [imgData, username],
-        );
-      } else {
-        await conn.query(
-          'INSERT INTO sign (username, image) VALUES (?, ?)',
-          [username, imgData],
-        );
-      }
-      downloadImageFromServer(username!);
-    } catch (e) {
-      showMsg(context, "오류", '업로드 실패: $e');
-    }
-  }
-
-  Future<void> downloadImageFromServer(String id) async {
-    try {
-      final result = await conn.query(
-          'SELECT image FROM sign WHERE username = ?', [id]);
-      if (result.isNotEmpty) {
-        final rowData = result.first;
-        final imgData = rowData['image'] as Blob;
-        final bytes = imgData.toBytes();
-        setState(() {
-          profile = bytes as Uint8List?;
-        });
-      }
-    } catch (e) {
-      showMsg(context, "오류", '다운로드 실패');
-    } finally {}
-  }
-
   List<String> selectedMarkers = [];
 
   void addMarker(List<String> titles) {

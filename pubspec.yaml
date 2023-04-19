@@ -59,6 +59,7 @@ dependencies:
   cached_network_image: ^3.2.3
   dio: ^5.1.1
   flutter_cache_manager: ^3.3.0
+  flutter_svg: ^2.0.5
 
 flutter_native_splash:
   android: true
@@ -103,6 +104,11 @@ flutter:
     - assets/images/default.png
     - assets/images/icons/wallet.png
     - assets/images/icons/alarm.png
+    - assets/images/home_icon.svg
+    - assets/images/map_icon.svg
+    - assets/images/profile_tab_icon.svg
+    - assets/images/story_icon.svg
+    - assets/images/cat.svg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
