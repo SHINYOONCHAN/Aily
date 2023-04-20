@@ -80,7 +80,6 @@ class _NavigatorScreenState extends State<NavigatorScreen> with TickerProviderSt
         ],
       );
     }
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: PageView(
@@ -130,6 +129,55 @@ class _NavigatorScreenState extends State<NavigatorScreen> with TickerProviderSt
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
+  //   return Scaffold(
+  //     resizeToAvoidBottomInset: false,
+  //     body: PageView(
+  //       controller: pageController,
+  //       onPageChanged: onPageChanged,
+  //       physics: const NeverScrollableScrollPhysics(),
+  //       children: _children.map((e) => FadeTransition(
+  //         opacity: _animation,
+  //         child: e,
+  //       )).toList(),
+  //     ),
+  //     bottomNavigationBar: BottomAppBar(
+  //       shape: const CircularNotchedRectangle(),
+  //       child: SizedBox(
+  //         height: MediaQuery.of(context).size.height * 0.08,
+  //         child: Row(
+  //           mainAxisSize: MainAxisSize.max,
+  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //           children: <Widget>[
+  //             const SizedBox(width: 20.0),
+  //             _IconButton('home_icon', 0),
+  //             const SizedBox(width: 10.0),
+  //             _IconButton('story_icon', 1),
+  //             const SizedBox(width: 100.0),
+  //             _IconButton('map_icon', 2),
+  //             const SizedBox(width: 10.0),
+  //             _IconButton('profile_tab_icon', 3),
+  //             const SizedBox(width: 20.0),
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //     floatingActionButton: FloatingActionButton(
+  //       onPressed: () {
+  //         Navigator.push(
+  //           context,
+  //           MaterialPageRoute(
+  //             builder: (context) => const QRScreen(),
+  //           ),
+  //         );
+  //       },
+  //       backgroundColor: myColor,
+  //       foregroundColor: Colors.white,
+  //       elevation: 5.0,
+  //       child: const Icon(Icons.qr_code, size: 40.0),
+  //     ),
+  //     floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+  //   );
+  // }
 
   void onPageChanged(int index) {
     setState(() {

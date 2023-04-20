@@ -110,7 +110,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    Color backColor = const Color(0xFFF6F1F6);
+    Color backColor = Colors.white;
 
     return Scaffold(
       backgroundColor: backColor,
