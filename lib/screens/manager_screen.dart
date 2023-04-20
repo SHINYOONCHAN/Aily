@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:Aily/utils/ShowDialog.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:gradients/gradients.dart';
-
 import 'login_screen.dart';
 
 class ManagerScreen extends StatefulWidget {

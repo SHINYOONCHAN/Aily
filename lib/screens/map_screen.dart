@@ -19,20 +19,23 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
   Set<Marker> markers = {};
   GoogleMapController? controller;
   Color myColor = const Color(0xFFF8B195);
-  late TextEditingController _searchctrl;
+  late TextEditingController searchctrl;
   late String searchStr = '';
+  FocusNode _focusNode = FocusNode();
+
   @override
   void initState() {
     super.initState();
-    _searchctrl = TextEditingController();
+    searchctrl = TextEditingController();
     initMap();
   }
 
   @override
   void dispose(){
-    _searchctrl.dispose();
+    searchctrl.dispose();
     super.dispose();
   }
+
   void initMap() {
     final List<LatLng> locations = [
       const LatLng(37.500936916629, 126.86674390514),
@@ -84,7 +87,7 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
   }
 
   void _search() {
-    final String str = _searchctrl.text.trim();
+    final String str = searchctrl.text.trim();
     if (str.contains('Aily1') || str.contains('동양')){
       searchStr = '동양미래대학교';
     } else if (str.contains('Aily2')){
@@ -96,7 +99,12 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
     else {
       showMsg(context, '검색', '찾을 수 없습니다.');
     }
+    _removeFocus();
     setState(() {});
+  }
+
+  void _removeFocus() {
+    _focusNode.unfocus();
   }
 
   @override
@@ -118,54 +126,6 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
       return const Text('현 위치에서 가까운 Aily의 위치가 나타나요.', style: TextStyle(fontSize: 16));
     }
     return Column(children: listTiles);
-  }
-
-  void BottomSheet () {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(40),
-          topRight: Radius.circular(40),
-          bottomLeft: Radius.circular(40),
-          bottomRight: Radius.circular(40),
-        ),
-      ),
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-        return Padding(
-          padding: EdgeInsets.only(
-              bottom: MediaQuery
-                  .of(context)
-                  .viewInsets
-                  .bottom),
-          child: SingleChildScrollView(
-            child: Container(
-              height: MediaQuery
-                  .of(context)
-                  .size
-                  .height * 0.6,
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 20.0, vertical: 40.0),
-              child: Form(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment
-                      .stretch,
-                  children: const [
-                    Text(
-                      '회원가입',
-                      style: TextStyle(
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
   }
 
   Widget MapWidget(BuildContext context) {
@@ -209,9 +169,10 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
                     SizedBox(
                       width: 370,
                       child: TextField(
-                        controller: _searchctrl,
+                        focusNode: _focusNode,
+                        controller: searchctrl,
                         decoration: InputDecoration(
-                          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                           hintText: '주소, 지역 검색',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(20),
@@ -254,8 +215,8 @@ class _MapScreenState extends State<MapScreen> with AutomaticKeepAliveClientMixi
 
 Widget _ListTile(BuildContext context, String title) {
   return ListTile(
-    title: Text(title, style: TextStyle(fontSize: 18)),
-    subtitle: Text('캔 사용가능 | 플라스틱 사용불가', style: TextStyle(fontSize: 16)),
+    title: Text(title, style: const TextStyle(fontSize: 18)),
+    subtitle: const Text('캔 사용가능 | 플라스틱 사용불가', style: TextStyle(fontSize: 16)),
     onTap: () {
       showMsg(context, '까꿍', title);
     },

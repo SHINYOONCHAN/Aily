@@ -158,8 +158,8 @@ class _Account_screenState extends State<Account_screen> {
                                   child: ClipOval(
                                     child: Image.file(
                                       profile!,
-                                      width: 80,
-                                      height: 80,
+                                      width: 50,
+                                      height: 50,
                                       fit: BoxFit.cover,
                                     ),
                                   ),
