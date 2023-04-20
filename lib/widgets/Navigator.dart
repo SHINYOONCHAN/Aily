@@ -51,6 +51,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> with TickerProviderSt
       return Column(
         children: [
           IconButton(
+            iconSize: 40,
             icon: SvgPicture.asset(
               'assets/images/icons/$icon.svg',
               color: _currentIndex == index ? myColor : Colors.grey,
@@ -76,7 +77,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> with TickerProviderSt
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         child: SizedBox(
-          height: MediaQuery.of(context).size.height * 0.07,
+          height: MediaQuery.of(context).size.height * 0.08,
           child: Row(
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

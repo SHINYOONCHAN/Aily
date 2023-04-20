@@ -177,10 +177,11 @@ class _LoginScreenState extends State<LoginScreen> {
           phonenumber = jsonResponse[0]['User_phonenumber'];
           saveLoginInfo(id, md5Password);
           if (id == 'admin'){
-            Navigator.pushAndRemoveUntil(
+            Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const ManagerScreen()),
-                  (route) => false,
+              MaterialPageRoute(
+                builder: (context) => const ManagerScreen(),
+              ),
             );
           }else{
             showLoadingDialog(context);

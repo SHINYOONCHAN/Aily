@@ -17,28 +17,31 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late String phoneNumber;
-  late MySqlConnection conn;
-
-  File? _image;
-  Uint8List? _imageData;
   List<String> SelectedTitles = [];
-
+  late double screenWidth, screenHeight;
   late String? username;
   late int? userpoint;
-  late Uint8List? profile;
   Color myColor = const Color(0xFFF8B195);
 
   @override
   void initState() {
     super.initState();
+    _getScreenSize();
     _getUser();
   }
 
   @override
   void dispose() {
-    conn.close();
     super.dispose();
+  }
+
+  void _getScreenSize() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        screenWidth = MediaQuery.of(context).size.width;
+        screenHeight = MediaQuery.of(context).size.height;
+      });
+    });
   }
 
   void _getUser() {
@@ -56,21 +59,19 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       SelectedTitles = titles;
     });
-    addMarker(SelectedTitles);
+    _addMarker(SelectedTitles);
     print(SelectedTitles);
   }
 
-  List<String> selectedMarkers = [];
-
-  void addMarker(List<String> titles) {
+  void _addMarker(List<String> titles) {
     setState(() {
-      selectedMarkers = [...selectedMarkers, ...titles];
+      SelectedTitles = [...SelectedTitles, ...titles];
     });
   }
 
   Widget _buildListTiles() {
     List<Widget> listTiles = [];
-    for (var title in selectedMarkers) {
+    for (var title in SelectedTitles) {
       listTiles.add(_ListTile(context, title));
     }
     return Column(children: listTiles);
@@ -106,8 +107,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Stack(
                   children: [
                     Positioned(
-                      top: 5,
-                      left: 20,
+                      top: screenHeight * 0.007,
+                      left: screenWidth * 0.05,
                       child: Text(
                         "AILY",
                         style: TextStyle(
@@ -119,8 +120,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     Positioned(
-                      top: 13,
-                      left: 295,
+                      top: screenHeight * 0.02,
+                      left: screenWidth * 0.75,
                       child: GestureDetector(
                         onTap: () {
                           // 클릭 시 실행될 코드
@@ -152,8 +153,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Stack(
                   children: [
                     Positioned(
-                      top: 15,
-                      left: 30,
+                      top: screenHeight * 0.02,
+                      left: screenWidth * 0.075,
                       child: Row(
                         children: [
                           Image.asset(
@@ -186,7 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           const Padding(padding: EdgeInsets.symmetric(vertical: 10)),
                           Text(
                             '$userpoint',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 30,
                               fontWeight: FontWeight.bold,
                             ),
