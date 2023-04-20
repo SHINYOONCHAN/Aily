@@ -1,11 +1,7 @@
-import 'dart:async';
-import 'dart:io';
-import 'dart:typed_data';
 import 'package:Aily/utils/ShowDialog.dart';
 import 'package:Aily/proves/mapTitleProvider.dart';
 import 'package:Aily/screens/garbage_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:mysql1/mysql1.dart';
 import 'package:provider/provider.dart';
 import 'package:Aily/proves/testUserProvider.dart';
 
@@ -60,7 +56,6 @@ class _HomeScreenState extends State<HomeScreen> {
       SelectedTitles = titles;
     });
     _addMarker(SelectedTitles);
-    print(SelectedTitles);
   }
 
   void _addMarker(List<String> titles) {

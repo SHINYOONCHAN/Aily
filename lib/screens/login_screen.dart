@@ -1,22 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'manager_screen.dart';
 import 'package:Aily/utils/ShowDialog.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mysql1/mysql1.dart';
-import 'package:Aily/class/User.dart';
-//import 'package:Aily/proves/UserProvider.dart';
 import 'package:Aily/proves/testUserProvider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import '../widgets/Navigator.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:Aily/class/User.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -26,14 +21,13 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  late TextEditingController _idctrl;
-  late TextEditingController _passwordctrl;
-
-  late TextEditingController _signidctrl;
-  late TextEditingController _signpwctrl;
-  late TextEditingController _signpwctrl2;
-  late TextEditingController _signphonectrl;
-  late TextEditingController _signnicknamectrl;
+  late TextEditingController idctrl;
+  late TextEditingController passwordctrl;
+  late TextEditingController signidctrl;
+  late TextEditingController signpwctrl;
+  late TextEditingController signpwctrl2;
+  late TextEditingController signphonectrl;
+  late TextEditingController signnicknamectrl;
 
   Color myColor = const Color(0xFFF8B195);
   late Uint8List imgData;
@@ -41,39 +35,39 @@ class _LoginScreenState extends State<LoginScreen> {
   late int point, phonenumber;
   late String nickname, image;
   late File? profile;
-  late DateTime _selectedDate;
+  late DateTime selectedDate;
   String? _selectedGender;
   final List<String> _genders = ['남', '여'];
   String? _birth;
-  int _selectedYear = DateTime.now().year;
-  int _selectedMonth = DateTime.now().month;
-  int _selectedDay = DateTime.now().day;
+  int selectedYear = DateTime.now().year;
+  int selectedMonth = DateTime.now().month;
+  int selectedDay = DateTime.now().day;
 
   @override
   void initState() {
     super.initState();
-    _idctrl = TextEditingController();
-    _passwordctrl = TextEditingController();
+    idctrl = TextEditingController();
+    passwordctrl = TextEditingController();
 
-    _signidctrl = TextEditingController();
-    _signpwctrl = TextEditingController();
-    _signpwctrl2 = TextEditingController();
-    _signphonectrl = TextEditingController();
-    _signnicknamectrl = TextEditingController();
-    _selectedDate = DateTime(_selectedYear, _selectedMonth, _selectedDay);
+    signidctrl = TextEditingController();
+    signpwctrl = TextEditingController();
+    signpwctrl2 = TextEditingController();
+    signphonectrl = TextEditingController();
+    signnicknamectrl = TextEditingController();
+    selectedDate = DateTime(selectedYear, selectedMonth, selectedDay);
     _selectedGender = '남';
     //tryAutoLogin();
   }
 
   @override
   void dispose() {
-    _idctrl.dispose();
-    _passwordctrl.dispose();
-    _signidctrl.dispose();
-    _signpwctrl.dispose();
-    _signpwctrl2.dispose();
-    _signphonectrl.dispose();
-    _signnicknamectrl.dispose();
+    idctrl.dispose();
+    passwordctrl.dispose();
+    signidctrl.dispose();
+    signpwctrl.dispose();
+    signpwctrl2.dispose();
+    signphonectrl.dispose();
+    signnicknamectrl.dispose();
     super.dispose();
   }
 
@@ -156,8 +150,8 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> login() async {
-    final String id = _idctrl.text.trim();
-    final String pw = _passwordctrl.text.trim();
+    final String id = idctrl.text.trim();
+    final String pw = passwordctrl.text.trim();
 
     var bytes = utf8.encode(pw); // 문자열을 바이트 배열로 변환
     var md5Result = md5.convert(bytes); // MD5 해시 값 생성
@@ -213,19 +207,15 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> signup(UserProvider userProvider) async {
-    final String id = _signidctrl.text.trim();
-    final String pw = _signpwctrl.text.trim();
-    final String confirmPw = _signpwctrl2.text.trim();
-    final String phone = _signphonectrl.text.trim();
-    final String nickname = _signnicknamectrl.text.trim();
+    final String id = signidctrl.text.trim();
+    final String pw = signpwctrl.text.trim();
+    final String confirmPw = signpwctrl2.text.trim();
+    final String phone = signphonectrl.text.trim();
+    final String nickname = signnicknamectrl.text.trim();
 
     var bytes = utf8.encode(pw); // 문자열을 바이트 배열로 변환
     var md5Result = md5.convert(bytes); // MD5 해시 값 생성
     String md5Password = md5Result.toString();
-
-    // String username = userProvider.user.username;
-    // final User user = User.withDefaultProfile(username: username);
-    // userProvider.updateUser(user);
 
     // 회원가입 처리 로직 구현
     if (id.contains(' ') || pw.contains(' ')) {
@@ -255,24 +245,24 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _dismissModalBottomSheet() {
-    _signidctrl.clear();
-    _signpwctrl.clear();
-    _signpwctrl2.clear();
-    _signphonectrl.clear();
-    _signnicknamectrl.clear();
+    signidctrl.clear();
+    signpwctrl.clear();
+    signpwctrl2.clear();
+    signphonectrl.clear();
+    signnicknamectrl.clear();
     Navigator.of(context).pop();
   }
 
   void _updateSelectedYear(int? year) {
     setState(() {
-      _selectedYear = year ?? DateTime.now().year;
-      _selectedDate = DateTime(_selectedYear, _selectedMonth, _selectedDay);
+      selectedYear = year ?? DateTime.now().year;
+      selectedDate = DateTime(selectedYear, selectedMonth, selectedDay);
 
       // 해당 월의 마지막 일자를 계산하여 일자수를 업데이트합니다.
-      int daysInMonth = DateTime(_selectedYear, _selectedMonth + 1, 0).day;
-      if (_selectedDay > daysInMonth) {
-        _selectedDay = daysInMonth;
-        _selectedDate = DateTime(_selectedYear, _selectedMonth, _selectedDay);
+      int daysInMonth = DateTime(selectedYear, selectedMonth + 1, 0).day;
+      if (selectedDay > daysInMonth) {
+        selectedDay = daysInMonth;
+        selectedDate = DateTime(selectedYear, selectedMonth, selectedDay);
         _updateBirth();
       }
     });
@@ -280,14 +270,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _updateSelectedMonth(int? month) {
     setState(() {
-      _selectedMonth = month ?? DateTime.now().month;
-      _selectedDate = DateTime(_selectedYear, _selectedMonth, _selectedDay);
+      selectedMonth = month ?? DateTime.now().month;
+      selectedDate = DateTime(selectedYear, selectedMonth, selectedDay);
 
       // 해당 월의 마지막 일자를 계산하여 일자수를 업데이트합니다.
-      int daysInMonth = DateTime(_selectedYear, _selectedMonth + 1, 0).day;
-      if (_selectedDay > daysInMonth) {
-        _selectedDay = daysInMonth;
-        _selectedDate = DateTime(_selectedYear, _selectedMonth, _selectedDay);
+      int daysInMonth = DateTime(selectedYear, selectedMonth + 1, 0).day;
+      if (selectedDay > daysInMonth) {
+        selectedDay = daysInMonth;
+        selectedDate = DateTime(selectedYear, selectedMonth, selectedDay);
         _updateBirth();
       }
     });
@@ -295,8 +285,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _updateSelectedDay(int? day) {
     setState(() {
-      _selectedDay = day ?? DateTime.now().day;
-      _selectedDate = DateTime(_selectedYear, _selectedMonth, _selectedDay);
+      selectedDay = day ?? DateTime.now().day;
+      selectedDate = DateTime(selectedYear, selectedMonth, selectedDay);
       _updateBirth();
     });
   }
@@ -308,10 +298,10 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _updateBirth() {
-    if (_selectedYear == null || _selectedMonth == null || _selectedDay == null) {
+    if (selectedYear.isNaN || selectedMonth.isNaN || selectedDay.isNaN) {
       _birth = null;
     } else {
-      _birth = '${_selectedYear!}-${_selectedMonth!.toString().padLeft(2, '0')}-${_selectedDay!.toString().padLeft(2, '0')}';
+      _birth = '$selectedYear-${selectedMonth.toString().padLeft(2, '0')}-${selectedDay.toString().padLeft(2, '0')}';
     }
   }
 
@@ -385,9 +375,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10.0),
-                    buildTextFormField('아이디 입력', _signidctrl, TextInputType.text, false),
-                    buildTextFormField('비밀번호 입력', _signpwctrl, TextInputType.visiblePassword, true),
-                    buildTextFormField('비밀번호 확인', _signpwctrl2, TextInputType.visiblePassword, true),
+                    buildTextFormField('아이디 입력', signidctrl, TextInputType.text, false),
+                    buildTextFormField('비밀번호 입력', signpwctrl, TextInputType.visiblePassword, true),
+                    buildTextFormField('비밀번호 확인', signpwctrl2, TextInputType.visiblePassword, true),
                     const SizedBox(height: 20.0),
                     const Text('생년월일'),
                     Row(
@@ -406,7 +396,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                   ),
                                 ),
-                                _selectedYear,
+                                selectedYear,
                                 _updateSelectedYear,
                                 const InputDecoration(
                                   border: UnderlineInputBorder(),
@@ -431,7 +421,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                   ),
                                 ),
-                                _selectedMonth,
+                                selectedMonth,
                                 _updateSelectedMonth,
                                 const InputDecoration(
                                   border: UnderlineInputBorder(),
@@ -456,7 +446,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                   ),
                                 ),
-                                _selectedDay,
+                                selectedDay,
                                 _updateSelectedDay,
                                 const InputDecoration(
                                   border: UnderlineInputBorder(),
@@ -496,16 +486,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                     const SizedBox(height: 10.0),
-                    buildTextFormField('이름', _signnicknamectrl, TextInputType.text, false),
-                    buildTextFormField('전화번호 입력', _signphonectrl, TextInputType.phone, false),
+                    buildTextFormField('이름', signnicknamectrl, TextInputType.text, false),
+                    buildTextFormField('전화번호 입력', signphonectrl, TextInputType.phone, false),
                     const SizedBox(height: 16.0),
                     ElevatedButton(
                       onPressed: () async {
-                        final id = _signidctrl.text.trim();
                         UserProvider userProvider = UserProvider();
-                        // User newUser = User.withDefaultProfile(username: id);
-                        // userProvider.updateUser(newUser);
-
                         await signup(userProvider);
                       },
                       style: ElevatedButton.styleFrom(
@@ -573,7 +559,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 32.0),
                       TextField(
-                        controller: _idctrl,
+                        controller: idctrl,
                         decoration: const InputDecoration(
                           hintText: '아이디 입력',
                           border: OutlineInputBorder(),
@@ -581,7 +567,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 8.0),
                       TextField(
-                        controller: _passwordctrl,
+                        controller: passwordctrl,
                         decoration: const InputDecoration(
                           hintText: '비밀번호 입력',
                           border: OutlineInputBorder(),

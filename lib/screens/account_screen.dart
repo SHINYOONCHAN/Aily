@@ -3,18 +3,13 @@ import 'package:Aily/screens/login_screen.dart';
 import 'package:Aily/utils/ShowDialog.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:image_picker/image_picker.dart';
-//import 'package:Aily/proves/UserProvider.dart';
-import 'package:Aily/class/testUser.dart';
 import 'package:Aily/proves/testUserProvider.dart';
 import 'package:provider/provider.dart';
 import 'package:Aily/board/faq_screen.dart';
 import 'package:Aily/board/notice_screen.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import '../proves/mapTitleProvider.dart';
 
 class Account_screen extends StatefulWidget {
   const Account_screen({Key? key}) : super(key: key);
@@ -24,7 +19,6 @@ class Account_screen extends StatefulWidget {
 }
 
 class _Account_screenState extends State<Account_screen> {
-  String _qrCode = '';
   late File? _image;
   String? username;
   File? profile;
@@ -59,19 +53,6 @@ class _Account_screenState extends State<Account_screen> {
       ),
     );
     showMsg(context, '로그아웃', '로그아웃 되었습니다.');
-  }
-
-  Future<void> _scanQRCode() async {
-    String qrCode = await FlutterBarcodeScanner.scanBarcode(
-      '#ff6666',
-      '취소',
-      true,
-      ScanMode.QR,
-    );
-
-    setState(() {
-      _qrCode = qrCode;
-    });
   }
 
   void _profileUpdate(BuildContext context) async {
